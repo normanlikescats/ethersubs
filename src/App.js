@@ -1,4 +1,3 @@
-import './App.css';
 import React from "react";
 import Navbar from './Components/Navbar';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -11,7 +10,7 @@ import History from './Components/History';
 
 function App() {
   return (
-    <div className="App">
+    <div className="min-h-screen pt-28 flex flex-col items-center justify-center text-white text-center bg-gradient-to-b from-bg-purple from-5% to-bg-blue to-95%">
       <BrowserRouter>
         <Navbar />
         <Routes>

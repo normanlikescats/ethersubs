@@ -18,7 +18,7 @@ export const TransactionContext = React.createContext()
 const { ethereum } = window;
 
 const wallet = new ethers.providers.Web3Provider(ethereum);
-const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_ENDPOINT);
+const provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_ALCHEMY_ENDPOINT);
 const signer = wallet.getSigner();
 
 export const TransactionProvider = ({children}) =>{
