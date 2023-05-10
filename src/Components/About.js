@@ -1,5 +1,5 @@
 import React from "react";
-import bubbles from "../bubbles.gif"
+import bubbles from "../Images/bubbles.gif"
 
 export default function About(){
   return(

@@ -1,15 +1,21 @@
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useContext } from 'react';
+import { TransactionContext } from '../Context/EthersContext';
 import { MdOutlineAccountBalanceWallet } from "react-icons/md"
-import logo from "../ethersubslogo.png"
+import logo from "../Images/ethersubslogo.png"
 
 export default function Navbar() {
+  const {currentAccount, connectWallet} = useContext(TransactionContext)
   const pathname = useLocation().pathname.split("/")[1];
   let appNavbar;
   if(pathname === "" || pathname === "about"){
     appNavbar = false    
   } else{
     appNavbar = true
+  }
+  let truncAccount;
+  if(currentAccount){
+    truncAccount = `${currentAccount.slice(0, 5)}...${currentAccount.slice(-4)}`;
   }
 
   return (
@@ -45,8 +51,8 @@ export default function Navbar() {
         <Link className="p-2 font-raleway text-base lg:text-l border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to="/profile">
             Profile
         </Link>
-        <button className="flex flex-row items-center justify-between font-raleway text-base lg:text-l bg-button-green p-2 rounded-lg hover:bg-button-hover transition ease-in-out duration-500">
-            <MdOutlineAccountBalanceWallet className="w-4 h-4 mr-1"/> Connect Wallet
+        <button onClick={connectWallet} className="flex flex-row items-center justify-between font-raleway text-base lg:text-l bg-button-green p-2 rounded-lg hover:bg-button-hover transition ease-in-out duration-500">
+            <MdOutlineAccountBalanceWallet className="w-4 h-4 mr-1"/> {currentAccount ? truncAccount : "Connect Wallet"}
         </button>
       </>
       }  

@@ -7,6 +7,9 @@ import Home from './Components/Home';
 import Profile from './Components/Profile';
 import Creator from './Components/Creator';
 import History from './Components/History';
+import PostForm from "./Components/PostForm";
+import Error from "./Components/Error";
+import Post from "./Components/Post"
 
 function App() {
   return (
@@ -18,10 +21,13 @@ function App() {
           <Route path="/about" element = {<About/>} />
           <Route path="/app" element = {<Home/>} />
           <Route path="/profile/:id" element = {<Profile/>} />
+          <Route path="/post/create/:creatorId" element = {<PostForm/>} />
+          <Route path="/post/:postId" element = {<Post/>} />
           <Route path="/creator/:id" element = {<Creator/>} />
           <Route path="/history" element = {<History/>} />
+          <Route path="/*" element = {<Error/>}/>
         </Routes>
-        </BrowserRouter>
+      </BrowserRouter>
     </div>
   );
 }
