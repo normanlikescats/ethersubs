@@ -10,6 +10,7 @@ import {
   usdtABI,
   usdtDecimals
 } from "../constants.js"
+import axios from "axios";
 const ethers = require("ethers")
 
 
@@ -18,27 +19,17 @@ export const TransactionContext = React.createContext()
 const { ethereum } = window;
 
 const wallet = new ethers.providers.Web3Provider(ethereum);
-const provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_ENDPOINT);
+const provider = new ethers.providers.JsonRpcProvider(process.env.REACT_APP_ALCHEMY_ENDPOINT);
 const signer = wallet.getSigner();
 
 export const TransactionProvider = ({children}) =>{
-  const[currentAccount, setCurrentAccount] = useState('');
-  const[formData, setFormData] = useState({
-    address:'',
-    amount: ''
-  })
-  const[isLoading, setIsLoading] = useState(false);
+  const [ currentAccount, setCurrentAccount ] = useState('');
+  const [ user, setUser ] = useState('');
+  const [ isLoading, setIsLoading ] = useState(false);
   
   useEffect(()=>{
     IsConnected();
   },[])
-
-  const handleChange = (e, name) =>{
-    setFormData((prev)=>({...prev, 
-      [name]: e.target.value
-    }))
-    console.log(formData)
-  }
   
   const IsConnected = async () => {
     try{
@@ -48,7 +39,13 @@ export const TransactionProvider = ({children}) =>{
     
       if(accounts.length){
         setCurrentAccount(accounts[0]);
-      }
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
+          wallet: accounts[0]
+        }).then((response)=>{
+          console.log(`pull user data: ${response.data}`)
+          setUser(response.data)
+        })
+      }      
     } catch(error){
       console.log(error)
       throw new Error("No Ethereum Object")
@@ -59,52 +56,74 @@ export const TransactionProvider = ({children}) =>{
     try{
       if (!ethereum)return alert("Please install Metamask")
       const accounts =  await ethereum.request({method: 'eth_requestAccounts'});
-      setCurrentAccount(accounts[0]);
+      const wallet = accounts[0]
+      setCurrentAccount(wallet);
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
+        wallet: accounts[0]
+      }).then((response)=>{
+        console.log(`pull user data: ${response.data}`)
+        setUser(response.data)
+      })
     } catch(error){
       console.log(error)
       throw new Error("No Ethereum Object")
     }
   }
 
-  const sendEth = async() =>{
-
+  const sendEth = async(recipient, amount) =>{
+    const gas_price = await provider.getGasPrice();
+    const tx = {
+      from: currentAccount,
+      to: recipient,
+      value: ethers.utils.parseEther(String(amount)),
+      nonce: provider.getTransactionCount(currentAccount,"latest"),
+      gasLimit: ethers.utils.hexlify(0x100000),
+      gasPrice: gas_price,
+    }
+    try{
+      const transaction = await signer.sendTransaction(tx)
+      const receipt = await provider.waitForTransaction(transaction.hash)
+      console.log(receipt)
+      alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${transaction.hash}`)
+    } catch(err){
+      alert(`${err.message}`)
+    }
   }
 
-  const sendErc20 = async() =>{
-    const { address, amount } = formData;
-    let contractAddress = usdtAddress;
-    let abi = usdtABI;
-    let hash;
-    console.log(usdtDecimals)
-    const parsedAmount = ethers.utils.parseUnits(amount, usdtDecimals)
-    /*if(token === "DAI"){
+  const sendErc20 = async(recipient, token, amount) =>{
+    let contractAddress;
+    let abi;
+    let decimals;
+    if(token === "DAI"){
       contractAddress = daiAddress;
-      abi = daiABI;      
+      abi = daiABI;
+      decimals = daiDecimals;      
     } else if (token === "USDT"){
       contractAddress = usdtAddress;
-      abi = usdtABI;  
+      abi = usdtABI;
+      decimals = usdtDecimals; 
     } else if (token === "USDC"){
       contractAddress = usdcAddress;
       abi = usdcABI;  
-    }*/
-    console.log(parsedAmount)
+      decimals = usdcDecimals; 
+    }
+    const parsedAmount = ethers.utils.parseUnits(amount, decimals)
     const contract = new ethers.Contract(contractAddress, abi, signer);
-    const tx = contract.transfer(address, parsedAmount).then((response)=>{
-      hash = response.hash
-      checkStatus(hash)
-    })
-  }
-
-  const checkStatus = async(hash)=>{
-    console.log(hash)
-    let result = await wallet.waitForTransaction(hash)
-    alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${result.transactionHash}`)
+    try{
+      const tx = await contract.transfer(recipient, parsedAmount)
+      const hash = tx.hash
+      console.log(hash)
+      const result = await provider.waitForTransaction(hash)
+      alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${result.transactionHash}`)
+    } catch(err){
+      alert(`${err.message}`)
+    }
   }
 
 
   console.log(`Account: ${currentAccount}`)
   return(
-    <TransactionContext.Provider value={{connectWallet, currentAccount, formData, setFormData, handleChange, sendErc20, isLoading}}>
+    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, user}}>
       {children}
     </TransactionContext.Provider>
   )

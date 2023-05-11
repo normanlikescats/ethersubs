@@ -1,4 +1,3 @@
-import './App.css';
 import React from "react";
 import Navbar from './Components/Navbar';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -8,10 +7,13 @@ import Home from './Components/Home';
 import Profile from './Components/Profile';
 import Creator from './Components/Creator';
 import History from './Components/History';
+import PostForm from "./Components/PostForm";
+import Error from "./Components/Error";
+import Post from "./Components/Post"
 
 function App() {
   return (
-    <div className="App">
+    <div className="min-h-screen pt-28 flex flex-col items-center justify-center text-white text-center bg-gradient-to-b from-bg-purple from-5% to-bg-blue to-95%">
       <BrowserRouter>
         <Navbar />
         <Routes>
@@ -19,10 +21,13 @@ function App() {
           <Route path="/about" element = {<About/>} />
           <Route path="/app" element = {<Home/>} />
           <Route path="/profile/:id" element = {<Profile/>} />
+          <Route path="/post/create/:creatorId" element = {<PostForm/>} />
+          <Route path="/post/:postId" element = {<Post/>} />
           <Route path="/creator/:id" element = {<Creator/>} />
           <Route path="/history" element = {<History/>} />
+          <Route path="/*" element = {<Error/>}/>
         </Routes>
-        </BrowserRouter>
+      </BrowserRouter>
     </div>
   );
 }
