@@ -22,7 +22,7 @@ function App() {
           <Route path="/app" element = {<Home/>} />
           <Route path="/profile/:id" element = {<Profile/>} />
           <Route path="/post/create/:creatorId" element = {<PostForm/>} />
-          <Route path="/post/:postId" element = {<Post/>} />
+          <Route path="/posts/:postId" element = {<Post/>} />
           <Route path="/creator/:id" element = {<Creator/>} />
           <Route path="/history" element = {<History/>} />
           <Route path="/*" element = {<Error/>}/>

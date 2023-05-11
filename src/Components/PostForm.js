@@ -24,6 +24,7 @@ export default function PostForm(){
     })
   },[])
 
+  // Check if the user is the creator
   function checkConnected(creator){
     if(creator.user_id !== user.id){
       alert("Please connect your wallet")
@@ -31,6 +32,7 @@ export default function PostForm(){
     } 
   }
 
+  // Store uploaded file
   function handleFile(e){
     if(e.target.files[0]){
       setPostImage(e.target.files[0])
@@ -38,6 +40,7 @@ export default function PostForm(){
     }
   }
 
+  // Upload file to Firebase
   function uploadPostImage(e){
     e.preventDefault();
     const imageRef = ref(storage, `images/${postImage.name}${v4()}`)
@@ -53,6 +56,7 @@ export default function PostForm(){
     }
   }
 
+  // Remove uploaded image
   function deleteImage(e){
     e.preventDefault();
     setPostImage('');
@@ -61,10 +65,6 @@ export default function PostForm(){
 
   function handlePostSubmit(e){
     e.preventDefault();
-
-    console.log(title)
-    console.log(content)
-    console.log(imageUrl)
     try{
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/posts/create`,{
         creator_id: creator_id,
@@ -73,7 +73,7 @@ export default function PostForm(){
         image: imageUrl
       }).then((response)=>{
         console.log(response)
-        alert("Post posted :)")
+        navigate(`/posts/${response.data.id}`)
       })
     } catch(err){
       console.log(err)
@@ -84,7 +84,7 @@ export default function PostForm(){
     <div className="mb-32 px-24">
       {
         creator ?
-          <form className="flex flex-col justify-center items-start text-left p-12 rounded-2xl bg-panel-blue/40 shadow-xl">
+          <form className="flex flex-col justify-center items-start text-left px-24 py-12 rounded-2xl bg-panel-blue/40 shadow-xl">
             <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">Create Post</h1>
             <label className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Post Image</label>
             <img 

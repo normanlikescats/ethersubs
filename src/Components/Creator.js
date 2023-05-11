@@ -19,6 +19,7 @@ import {
 import { FaEthereum } from "react-icons/fa";
 import axios from "axios";
 import Select from "react-select";
+import PostList from "./PostList";
 
 export default function Creator(){
   const navigate = useNavigate();
@@ -219,19 +220,17 @@ export default function Creator(){
             </div>            
           </div>
         </div>
-        <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl">Posts</h3>
+        <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-2">Posts</h3>
         {creator.user_id === user.id ?
-        <button onClick={handleNewPost} className="font-raleway p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+        <button onClick={handleNewPost} className="font-raleway my-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
           Create New Post
         </button>:
         null}
-        { //change to threshold
-          follows !== [] ? 
-          <p> posts here </p> :
+        { /*change to threshold*/ }
           <div>
             THIS SECTION FOR FOLLOWERS ONLI
+            <PostList creator_id = {creator_id}/>
           </div>
-        }
       </div>
     </div>    
   )
