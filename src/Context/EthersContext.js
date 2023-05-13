@@ -123,7 +123,7 @@ export const TransactionProvider = ({children}) =>{
 
   console.log(`Account: ${currentAccount}`)
   return(
-    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, user}}>
+    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, user, setUser}}>
       {children}
     </TransactionContext.Provider>
   )

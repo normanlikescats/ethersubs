@@ -5,7 +5,7 @@ import { MdOutlineAccountBalanceWallet } from "react-icons/md"
 import logo from "../Images/ethersubslogo.png"
 
 export default function Navbar() {
-  const {currentAccount, connectWallet} = useContext(TransactionContext)
+  const {user, currentAccount, connectWallet} = useContext(TransactionContext)
   const pathname = useLocation().pathname.split("/")[1];
   let appNavbar;
   if(pathname === "" || pathname === "about"){
@@ -48,9 +48,13 @@ export default function Navbar() {
         <Link className="p-2 font-raleway text-base lg:text-l border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to="/history">
             History
         </Link>
-        <Link className="p-2 font-raleway text-base lg:text-l border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to="/profile">
-            Profile
-        </Link>
+        {
+          user ? 
+          <Link className="p-2 font-raleway text-base lg:text-l border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to={`/profile/${user.id}`}>
+              Profile
+          </Link> :
+          null
+        }
         <button onClick={connectWallet} className="flex flex-row items-center justify-between font-raleway text-base lg:text-l bg-button-green p-2 rounded-lg hover:bg-button-hover transition ease-in-out duration-500">
             <MdOutlineAccountBalanceWallet className="w-4 h-4 mr-1"/> {currentAccount ? truncAccount : "Connect Wallet"}
         </button>

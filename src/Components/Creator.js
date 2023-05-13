@@ -28,6 +28,7 @@ export default function Creator(){
   const [selectedOption, setSelectedOption] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [follows, setFollows] = useState([])
+  const [threshold, setThreshold] = useState(false)
   const { sendErc20, sendEth, user } = useContext(TransactionContext)
 
   // CODE IN USER FOLLOW/FOLLOWED/UNFOLLOW BUTTONS AND STATE
@@ -43,12 +44,26 @@ export default function Creator(){
   useEffect(()=>{
     if(user){
       console.log("get follows")
-      axios.get(`${process.env.REACT_APP_BACKEND_URL}/follows/one/${creator.id}/${user.id}`).then((response)=>{
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/follows/one/${creator_id}/${user.id}`).then((response)=>{
         console.log(response.data)
         setFollows(response.data)
       })
     }
   },[user])
+
+  // Pull Threshold data
+  useEffect(()=>{
+    if(user && creator){
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${user.id}/${creator_id}`).then((response)=>{
+        console.log(response.data[0].total_contribution)
+        console.log(creator.threshold)
+        console.log(response.data[0].total_contribution >= creator.threshold)
+        if(response.data[0].total_contribution >= creator.threshold){
+          setThreshold(true)
+        }
+      })
+    }
+  },[creator])
   
   // For React-Select Component
   const optionsArr = [
@@ -133,7 +148,6 @@ export default function Creator(){
     navigate(`/post/create/${creator.id}`)
   }
 
-  console.log(user)
   return(
     <div className="flex flex-col justify-center items-center">
       <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{creator.name}</h1>
@@ -226,11 +240,13 @@ export default function Creator(){
           Create New Post
         </button>:
         null}
-        { /*change to threshold*/ }
+        { threshold ?
           <div>
             THIS SECTION FOR FOLLOWERS ONLI
             <PostList creator_id = {creator_id}/>
           </div>
+          : 
+          <p>This section is for Premium Followers</p>}
       </div>
     </div>    
   )

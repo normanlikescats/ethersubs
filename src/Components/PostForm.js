@@ -65,6 +65,7 @@ export default function PostForm(){
 
   function handlePostSubmit(e){
     e.preventDefault();
+
     try{
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/posts/create`,{
         creator_id: creator_id,
