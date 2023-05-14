@@ -70,7 +70,7 @@ export const TransactionProvider = ({children}) =>{
     }
   }
 
-  const sendEth = async(recipient, amount) =>{
+  const sendEth = async(recipient, amount, user_id, creator_id) =>{
     const gas_price = await provider.getGasPrice();
     const tx = {
       from: currentAccount,
@@ -84,13 +84,17 @@ export const TransactionProvider = ({children}) =>{
       const transaction = await signer.sendTransaction(tx)
       const receipt = await provider.waitForTransaction(transaction.hash)
       console.log(receipt)
+      // add to txn history
+      await addTransaction(user_id, creator_id, amount, "ETH", transaction.hash)
+      // add to threshold
+      await addThreshold(user_id, creator_id, amount, "ETH")
       alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${transaction.hash}`)
     } catch(err){
       alert(`${err.message}`)
     }
   }
 
-  const sendErc20 = async(recipient, token, amount) =>{
+  const sendErc20 = async(recipient, token, amount, user_id, creator_id) =>{
     let contractAddress;
     let abi;
     let decimals;
@@ -114,14 +118,79 @@ export const TransactionProvider = ({children}) =>{
       const hash = tx.hash
       console.log(hash)
       const result = await provider.waitForTransaction(hash)
+      // add to txn history
+      await addTransaction(user_id, creator_id, amount, token, result.transactionHash)
+      // add to threshold
+      await addThreshold(user_id, creator_id, amount, token)
       alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${result.transactionHash}`)
     } catch(err){
       alert(`${err.message}`)
     }
   }
 
+  const addTransaction = async(user_id, creator_id, amount, asset, trasaction_hash)=>{
+    try{
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/transactions/create`,{
+          user_id: user_id,
+          creator_id: creator_id,
+          amount: amount,
+          asset: asset,
+          transaction_hash:trasaction_hash
+        }).then((response)=>{
+          console.log(response.data)
+        })
+      } catch(err){
+        console.log(err)
+      }
+  }
 
-  console.log(`Account: ${currentAccount}`)
+  const addThreshold = async (user_id, creator_id, amount, asset)=>{
+    let currentETHPrice;
+    let formattedAmount = amount
+    if(asset !== "ETH"){
+      console.log("noteth")
+      axios.get(`https://api.coinbase.com/v2/prices/ETH-USD/spot`).then((response)=>{
+        currentETHPrice = +response.data.data.amount
+        formattedAmount = +amount
+        formattedAmount = formattedAmount/currentETHPrice
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
+          user_id: user_id,
+          creator_id: creator_id,
+          amount: formattedAmount
+        }).then((response)=>{
+          console.log(response)
+          if(response.data.total_contribution !== formattedAmount){
+            const newTotal = response.data.total_contribution + formattedAmount
+            console.log(newTotal)
+            axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
+              newTotalAmount: newTotal
+            }).then((response)=>{
+              console.log(response)
+            })
+          }
+        })    
+      })
+    } else{
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
+          user_id: user_id,
+          creator_id: creator_id,
+          amount: amount
+        }).then((response)=>{
+          console.log(response)
+          if(response.data.total_contribution !== formattedAmount){
+            const newTotal = response.data.total_contribution + amount
+            console.log(newTotal)
+            axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
+              newTotalAmount: newTotal
+            }).then((response)=>{
+              console.log(response)
+            })
+          }
+        })    
+      }
+    
+  }
+
   return(
     <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, user, setUser}}>
       {children}

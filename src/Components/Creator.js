@@ -31,8 +31,6 @@ export default function Creator(){
   const [threshold, setThreshold] = useState(false)
   const { sendErc20, sendEth, user } = useContext(TransactionContext)
 
-  // CODE IN USER FOLLOW/FOLLOWED/UNFOLLOW BUTTONS AND STATE
-
   // Pull Creator Data
   useEffect(()=>{
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/${creator_id}`).then((response)=>{
@@ -40,31 +38,28 @@ export default function Creator(){
     })
   },[])
 
-  // Pull follow data
-  useEffect(()=>{
-    if(user){
-      console.log("get follows")
-      axios.get(`${process.env.REACT_APP_BACKEND_URL}/follows/one/${creator_id}/${user.id}`).then((response)=>{
-        console.log(response.data)
-        setFollows(response.data)
-      })
-    }
-  },[user])
-
   // Pull Threshold data
   useEffect(()=>{
     if(user && creator){
       axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${user.id}/${creator_id}`).then((response)=>{
-        console.log(response.data[0].total_contribution)
+        console.log(response.data)
         console.log(creator.threshold)
-        console.log(response.data[0].total_contribution >= creator.threshold)
         if(response.data[0].total_contribution >= creator.threshold){
           setThreshold(true)
         }
       })
     }
-  },[creator])
-  
+  },[user, creator])
+
+  // Pull follow data
+  useEffect(()=>{
+    if(user){
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/follows/one/${creator_id}/${user.id}`).then((response)=>{
+        setFollows(response.data)
+      })
+    }
+  },[user])
+
   // For React-Select Component
   const optionsArr = [
     { value: 'USDC', label: 'USDC', icon: usdcIcon},
@@ -126,17 +121,19 @@ export default function Creator(){
     }
     console.log(creator.user.wallet)
     console.log(amount)
-    sendEth(creator.user.wallet, amount);
+    const creatorIdNum = +creator_id
+    sendEth(creator.user.wallet, amount, user.id, creatorIdNum);
   }
 
   function handleCustomPayment(){
     console.log(selectedOption.value)
     console.log(customAmount)
+    const creatorIdNum = +creator_id
     if(selectedOption.value === "ETH"){
       console.log("ETH")
-      sendEth(creator.user.wallet, customAmount)
+      sendEth(creator.user.wallet, customAmount, user.id, creatorIdNum)
     } else {
-      sendErc20(creator.user.wallet, selectedOption.value, customAmount);
+      sendErc20(creator.user.wallet, selectedOption.value, customAmount, user.id, creatorIdNum);
     }
   }
 
@@ -240,7 +237,7 @@ export default function Creator(){
           Create New Post
         </button>:
         null}
-        { threshold ?
+        { threshold || user.id === creator.user_id ?
           <div>
             THIS SECTION FOR FOLLOWERS ONLI
             <PostList creator_id = {creator_id}/>

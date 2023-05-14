@@ -30,7 +30,7 @@ export default function Profile(){
 
   // Pull Creator data if any
   useEffect(()=>{
-    if(user && creator){
+    if(user && user.creator){
       try{
         axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${user_id}`).then((response)=>{
           console.log(response.data)
@@ -40,7 +40,7 @@ export default function Profile(){
         console.log(err)
       }
     }
-  },[user_id])
+  },[user])
 
   function handleCreatorClick(id){
     navigate(`/creator/${id}`)
@@ -67,7 +67,6 @@ export default function Profile(){
     })
   }
 
-  console.log(user)
   console.log(creatorItems)
   return(
     <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
@@ -102,7 +101,7 @@ export default function Profile(){
             null
           }
           {creator ? 
-            <button className="p-2 my-2 w-1/5 self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+            <button className="p-2 my-2 w-full self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
               Create a Creator Page
             </button>
             :

@@ -13,11 +13,32 @@ export default function Post(){
   const [post, setPost] = useState('')
   const [comments, setComments] = useState('')
   const [newComment, setNewComment] = useState('')
+  const [threshold, setThreshold] = useState('')
   const [postEditMode, setPostEditMode] = useState(false)
 
   const { user } = useContext(TransactionContext)
 
-  // write in code to check threshold
+  // Pull Threshold data
+  useEffect(()=>{
+    if(!user){
+      navigate(`/creator/${post.creator.id}`)
+    } else if(post){
+      if(user.id === post.creator.user_id){
+        console.log("creator")
+      } else {
+        console.log("get threshold")
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${user.id}/${post.creator.id}`).then((response)=>{
+          if(response.data.length === 0){
+            navigate(`/creator/${post.creator.id}`)
+          } else if(response.data[0].total_contribution < post.creator.threshold){
+            navigate(`/creator/${post.creator.id}`)
+          } else if(response.data[0].total_contribution >= post.creator.threshold){
+            setThreshold(true)
+          }
+        })
+      }
+    }
+  },[user])
 
   // Pull post data
   useEffect(()=>{

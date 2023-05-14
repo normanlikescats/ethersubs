@@ -87,10 +87,12 @@ export default function ProfileForm(){
   console.log(user)
   return(
     <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
+      <div className="flex flex-row justify-end"> 
+        <button onClick={handleCancel}><GiCancel/></button>
+      </div>
       <div className="flex flex-col items-center text-left px-24 py-12">
         <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">Edit Profile</h1>
         <p>{imageUrl === null}</p>
-        <button onClick={handleCancel}><GiCancel/></button>
         <img
         className="rounded-lg w-72 h-72 object-cover"
         src={imageUrl === null ? photoUrl : imageUrl}

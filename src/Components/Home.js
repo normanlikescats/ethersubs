@@ -53,7 +53,7 @@ export default function Home(){
   if(follows){
     followItems = follows.map((follow)=>{
       return(
-        <div onClick={()=>handleClick(follow.creator.id)} className="w-1/3">
+        <div onClick={()=>handleClick(follow.creator_id)} className="w-1/3">
           <img src={follow.creator.image} alt={follow.creator.name} className="w-11/12 aspect-square"/>
           <h3 className="font-lilita text-left">{follow.creator.name}</h3>
           <p className="font-raleway text-left">{follow.creator.bio}</p>
@@ -65,20 +65,20 @@ export default function Home(){
   return(
     <div className="flex flex-col justify-center items-center w-full">
       <Searchbar handleSubmit={handleSubmit} creators={creatorsList}/>
-      <h2 className="pt-12 font-lilita text-xl 2xl:text-3xl xl:text-2xl">Top Creators</h2>
-      <div className="flex flex-row flex-wrap py-2 w-8/12">
-        {creatorItems}
-      </div>
       {
         followItems.length === 0 ?
         null :
         <div>
-            <h2 className="pt-12 font-lilita text-xl 2xl:text-3xl xl:text-2xl">Your Creators</h2>
-            <div className="flex flex-row flex-wrap py-2 w-8/12">
+          <h2 className="pt-12 font-lilita text-xl 2xl:text-3xl xl:text-2xl">Your Creators</h2>
+          <div className="flex flex-row flex-wrap py-2 w-8/12">
               {followItems}
-            </div>
           </div> 
+        </div>
       }
+      <h2 className="pt-12 font-lilita text-xl 2xl:text-3xl xl:text-2xl">Top Creators</h2>
+      <div className="flex flex-row flex-wrap py-2 w-8/12">
+        {creatorItems}
+      </div>
     </div>
   )
 }
