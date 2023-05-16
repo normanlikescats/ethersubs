@@ -8,7 +8,7 @@ export default function Home(){
   const navigate = useNavigate();
   const [creatorsList, setCreatorsList] = useState('');
   const [follows, setFollows] = useState([])
-  const { user } = useContext(TransactionContext);
+  const { dbUser, accessToken } = useContext(TransactionContext);
 
   useEffect(()=>{
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/all`).then((response)=>{
@@ -19,14 +19,17 @@ export default function Home(){
 
   // Pull follow data
   useEffect(()=>{
-    if(user){
-      console.log("get follows")
-      axios.get(`${process.env.REACT_APP_BACKEND_URL}/follows/user/${user.id}`).then((response)=>{
+    if(dbUser){
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/follows/user/${dbUser.id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((response)=>{
         console.log(response.data)
         setFollows(response.data)
       })
     }
-  },[user])
+  },[dbUser])
 
   function handleSubmit(results){
     navigate(`/creator/${results[0].id}`)
@@ -40,10 +43,10 @@ export default function Home(){
   if(creatorsList){
     creatorItems = creatorsList.map((creator)=>{
       return(
-        <div onClick={()=>handleClick(creator.id)} className="w-1/3">
-          <img src={creator.image} alt={creator.name} className="w-11/12 aspect-square"/>
-          <h3 className="font-lilita text-left">{creator.name}</h3>
-          <p className="font-raleway text-left">{creator.bio}</p>
+        <div onClick={()=>handleClick(creator.id)} className="flex flex-col items-center w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+          <img src={creator.image} alt={creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
+          <h3 className="font-lilita text-left w-11/12">{creator.name}</h3>
+          <p className="font-raleway text-left w-11/12">{creator.bio.slice(0,120)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(creator.id)}> Continue reading →</span></p>
         </div>
       )
     })
@@ -53,10 +56,10 @@ export default function Home(){
   if(follows){
     followItems = follows.map((follow)=>{
       return(
-        <div onClick={()=>handleClick(follow.creator_id)} className="w-1/3">
-          <img src={follow.creator.image} alt={follow.creator.name} className="w-11/12 aspect-square"/>
-          <h3 className="font-lilita text-left">{follow.creator.name}</h3>
-          <p className="font-raleway text-left">{follow.creator.bio}</p>
+        <div onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+          <img src={follow.creator.image} alt={follow.creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
+          <h3 className="font-lilita text-left w-11/12">{follow.creator.name}</h3>
+          <p className="font-raleway text-left w-11/12">{follow.creator.bio.slice(0,120)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(follow.creator_id)}> Continue reading →</span></p>
         </div>
       )
     })
@@ -65,18 +68,16 @@ export default function Home(){
   return(
     <div className="flex flex-col justify-center items-center w-full">
       <Searchbar handleSubmit={handleSubmit} creators={creatorsList}/>
+      <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Your Creators</h2>
       {
         followItems.length === 0 ?
-        null :
-        <div>
-          <h2 className="pt-12 font-lilita text-xl 2xl:text-3xl xl:text-2xl">Your Creators</h2>
-          <div className="flex flex-row flex-wrap py-2 w-8/12">
-              {followItems}
-          </div> 
-        </div>
+        <h2 className="font-raleway pt-3">You're not following anyone yet!</h2> :
+        <div className="flex flex-row justify-center flex-wrap py-12 px-24 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32">
+          {followItems}
+        </div> 
       }
-      <h2 className="pt-12 font-lilita text-xl 2xl:text-3xl xl:text-2xl">Top Creators</h2>
-      <div className="flex flex-row flex-wrap py-2 w-8/12">
+      <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Top Creators</h2>
+      <div className="flex flex-row justify-center flex-wrap py-12 px-24 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-8">
         {creatorItems}
       </div>
     </div>

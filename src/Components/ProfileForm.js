@@ -8,10 +8,10 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { v4 } from 'uuid';
 
 export default function ProfileForm(){
-  const { user, setUser } = useContext(TransactionContext)
-  const [name, setName] = useState(user.display_name)
-  const [creator, setCreator] = useState(user.creator)
-  const [photoUrl, setPhotoUrl] = useState(user.photo_url)
+  const { dbUser, setDbUser, accessToken } = useContext(TransactionContext)
+  const [name, setName] = useState(dbUser.display_name)
+  const [creator, setCreator] = useState(dbUser.creator)
+  const [photoUrl, setPhotoUrl] = useState(dbUser.photo_url)
   const [postImage, setPostImage] = useState('')
   const [imageUrl, setImageUrl] = useState(null)
   const navigate = useNavigate();
@@ -52,14 +52,19 @@ export default function ProfileForm(){
     if (imageUrl !== null){
       try{
         axios.put(`${process.env.REACT_APP_BACKEND_URL}/users/`,{
-          wallet: user.wallet,
+          wallet: dbUser.wallet,
           display_name: name,
           creator: creator,
           photo_url: imageUrl
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
         }).then((response)=>{
           console.log(response.data)
-          setUser(response.data[1])
-          navigate(`/profile/${user.id}`)
+          setDbUser(response.data[1])
+          navigate(`/profile/${dbUser.id}`)
         })
       } catch(err){
         console.log(err)
@@ -67,12 +72,17 @@ export default function ProfileForm(){
     } else{
       try{
         axios.put(`${process.env.REACT_APP_BACKEND_URL}/users/`,{
-          wallet: user.wallet,
+          wallet: dbUser.wallet,
           display_name: name,
           creator: creator
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
         }).then((response)=>{
-          setUser(response.data[1][0])
-          navigate(`/profile/${user.id}`)
+          setDbUser(response.data[1][0])
+          navigate(`/profile/${dbUser.id}`)
         })
       }catch(err){
         console.log(err)
@@ -81,22 +91,21 @@ export default function ProfileForm(){
   }
 
   function handleCancel(){
-    navigate(`/profile/${user.id}`)
+    navigate(`/profile/${dbUser.id}`)
   }
 
-  console.log(user)
+  console.log(dbUser)
   return(
     <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
       <div className="flex flex-row justify-end"> 
-        <button onClick={handleCancel}><GiCancel/></button>
+        <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleCancel}><GiCancel/></button>
       </div>
       <div className="flex flex-col items-center text-left px-24 py-12">
         <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">Edit Profile</h1>
-        <p>{imageUrl === null}</p>
         <img
         className="rounded-lg w-72 h-72 object-cover"
         src={imageUrl === null ? photoUrl : imageUrl}
-        alt={user.display_name ? user.display_name : "User Profile"}
+        alt={dbUser.display_name ? dbUser.display_name : "User Profile"}
         />
         <div className="flex flex-row items-center justify-between w-full my-3">
           <input
@@ -112,13 +121,13 @@ export default function ProfileForm(){
           }
         </div>
         <div className="flex flex-col justify-start w-full">
-          <h2>Wallet: {user? `${user.wallet.slice(0, 5)}... ${user.wallet.slice(-4)}` : null}</h2>
+          <h2>Wallet: {dbUser? `${dbUser.wallet.slice(0, 5)}... ${dbUser.wallet.slice(-4)}` : null}</h2>
           <input type="text" value={name} placeholder="Enter a display name" onChange={(e)=>{setName(e.target.value)}} className="text-black px-2 py-1"/>
           <div className="flex flex-row content-center">
             <input className="mr-3" type="checkbox" onChange={()=>{setCreator(!creator)}} value={creator} checked={creator ? 'checked': ''}/>
             <label>Creator</label>
           </div>
-          <p>User since {new Date(user.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).split(",")[1]}</p>
+          <p>User since {new Date(dbUser.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).split(",")[1]}</p>
         </div>
         <button onClick={handleSubmit} className="p-2 my-2 w-1/5 self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm Changes</button>
       </div>

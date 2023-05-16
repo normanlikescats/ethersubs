@@ -1,17 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
 import { storage } from "../firebase"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import placeholder from "../Images/placeholder.png";
 import { v4 } from 'uuid';
-import axios from 'axios';
 import { GiCancel } from "react-icons/gi";
 
 export default function PostEditForm(props){
-  const navigate = useNavigate();
   const [title, setTitle] = useState(props.post.title)
   const [content, setContent] = useState(props.post.content)
-  const [creator, setCreator] = useState(props.post.creator)
   const [postImage, setPostImage] = useState('')
   const [imageUrl, setImageUrl] = useState(props.post.image);
 

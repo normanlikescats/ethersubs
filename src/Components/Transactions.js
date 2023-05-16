@@ -5,18 +5,22 @@ import axios from "axios";
 
 export default function Transactions(){
   const navigate = useNavigate();
-  const { user } = useContext(TransactionContext);
+  const { dbUser, accessToken } = useContext(TransactionContext);
   const [creatorIdArr, setCreatorIdArr] = useState('')
   const [userTransactions, setUserTransactions] = useState('')
   const [creatorTransactions, setcreatorTransactions] = useState('')
   const [userMode, setUserMode] = useState(true)
-  console.log(user)
+  console.log(dbUser)
   
   // Grab user transactions
   useEffect(()=>{
-    if(user){
+    if(dbUser){
       try{
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/user/${user.id}`).then((response)=>{
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/user/${dbUser.id}`,{
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }).then((response)=>{
           console.log(response.data)
           setUserTransactions(response.data)
         })
@@ -24,13 +28,13 @@ export default function Transactions(){
         console.log(err)
       }
     }
-  },[user])
+  },[dbUser])
 
   // Grab creator if any
   useEffect(()=>{
-    if(user && user.creator){
+    if(dbUser && dbUser.creator){
       try{
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${user.id}`).then((response)=>{
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${dbUser.id}`).then((response)=>{
           console.log(response.data)
           let creatorArr = [];
           for (let i = 0; i < response.data.length; i++){
@@ -42,13 +46,17 @@ export default function Transactions(){
         console.log(err)
       }
     }
-  },[user])
+  },[dbUser])
 
   // Grab Creator Transactions if any
   useEffect(()=>{
     if(creatorIdArr){
       console.log(creatorIdArr)
-      axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/creator/${creatorIdArr.join("-")}`).then((response)=>{
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/creator/${creatorIdArr.join("-")}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((response)=>{
         console.log(response.data)
         setcreatorTransactions(response.data)
       })
@@ -72,7 +80,7 @@ export default function Transactions(){
     userTransactionItems = userTransactions.map((transaction)=>{
       return(
         <tr>
-          <td className="border border-white py-2 px-1 hover:text-hover-pink" onClick={()=>{handleProfile(transaction.user_id)}}>{ user.display_name ? user.display_name : `${user.wallet.slice(0, 5)}...${user.wallet.slice(-4)}`}</td>
+          <td className="border border-white py-2 px-1 hover:text-hover-pink" onClick={()=>{handleProfile(transaction.user_id)}}>{ dbUser.display_name ? dbUser.display_name : `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}`}</td>
           <td className="border border-white py-2 px-1 hover:text-hover-pink" onClick={()=>{handleCreator(transaction.creator_id)}}>{ transaction.creator.name }</td>
           <td className="border border-white py-2 px-1">{ transaction.asset }</td>
           <td className="border border-white py-2 px-1">{ transaction.amount }</td>

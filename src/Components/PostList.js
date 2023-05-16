@@ -7,7 +7,11 @@ export default function PostList(props){
   const navigate = useNavigate();
   
   useEffect(()=>{
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/posts/all/${props.creator_id}`).then((response)=>{
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/posts/all/${props.creator_id}`,{
+      headers: {
+        Authorization: `Bearer ${props.accessToken}`,
+        }
+      }).then((response)=>{
       console.log(response.data)
       setPosts(response.data)
     })

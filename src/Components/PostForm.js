@@ -15,7 +15,7 @@ export default function PostForm(){
   const [creator, setCreator] = useState('')
   const [postImage, setPostImage] = useState('')
   const [imageUrl, setImageUrl] = useState(null);
-  const { user } = useContext(TransactionContext)
+  const { dbUser, accessToken } = useContext(TransactionContext)
 
   useEffect(()=>{
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/${creator_id}`).then((response)=>{
@@ -26,7 +26,7 @@ export default function PostForm(){
 
   // Check if the user is the creator
   function checkConnected(creator){
-    if(creator.user_id !== user.id){
+    if(creator.user_id !== dbUser.id){
       alert("Please connect your wallet")
       navigate(`/creator/${creator_id}`)
     } 
@@ -72,6 +72,10 @@ export default function PostForm(){
         title: title,
         content: content,
         image: imageUrl
+      },{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       }).then((response)=>{
         console.log(response)
         navigate(`/posts/${response.data.id}`)

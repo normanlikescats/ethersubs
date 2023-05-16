@@ -7,7 +7,7 @@ import { BiEdit } from 'react-icons/bi'
 
 export default function Profile(){
   const user_id = useParams().id;
-  const { user } = useContext(TransactionContext)
+  const { dbUser, accessToken } = useContext(TransactionContext)
   const [name, setName] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
   const [wallet, setWallet] = useState('')
@@ -26,11 +26,11 @@ export default function Profile(){
         setCreator(response.data[0].creator)
         setCreatedDate(response.data[0].created_at)
       })
-  },[user])
+  },[dbUser])
 
   // Pull Creator data if any
   useEffect(()=>{
-    if(user && user.creator){
+    if(dbUser && dbUser.creator){
       try{
         axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${user_id}`).then((response)=>{
           console.log(response.data)
@@ -40,7 +40,7 @@ export default function Profile(){
         console.log(err)
       }
     }
-  },[user])
+  },[dbUser])
 
   function handleCreatorClick(id){
     navigate(`/creator/${id}`)
@@ -48,6 +48,10 @@ export default function Profile(){
 
   function handleEdit(){
     navigate("/edit/profile")
+  }
+
+  function handleNewCreator(){
+    navigate("/creator/create")
   }
 
   let creatorItems;
@@ -67,10 +71,10 @@ export default function Profile(){
     })
   }
 
-  console.log(creatorItems)
+
   return(
     <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
-    { String(user.id) === String(user_id) ?
+    { String(dbUser.id) === String(user_id) ?
         <div className="flex flex-row justify-end">
           <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit/></button>
         </div> :
@@ -101,7 +105,7 @@ export default function Profile(){
             null
           }
           {creator ? 
-            <button className="p-2 my-2 w-full self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+            <button className="p-2 my-2 w-full self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500" onClick={handleNewCreator}>
               Create a Creator Page
             </button>
             :

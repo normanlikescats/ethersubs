@@ -11,6 +11,8 @@ import PostForm from "./Components/PostForm";
 import Error from "./Components/Error";
 import Post from "./Components/Post";
 import ProfileForm from "./Components/ProfileForm"
+import CreatorForm from "./Components/CreatorForm";
+import CreatorEditForm from "./Components/CreatorEditForm";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
           <Route path="/post/create/:creatorId" element = {<PostForm/>} />
           <Route path="/posts/:postId" element = {<Post/>} />
           <Route path="/creator/:id" element = {<Creator/>} />
+          <Route path="/creator/create" element = {<CreatorForm/>} />
+          <Route path="/creator/edit/:id" element = {<CreatorEditForm/>} />
           <Route path="/history" element = {<Transactions/>} />
           <Route path="/*" element = {<Error/>}/>
         </Routes>

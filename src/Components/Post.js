@@ -15,19 +15,22 @@ export default function Post(){
   const [newComment, setNewComment] = useState('')
   const [threshold, setThreshold] = useState('')
   const [postEditMode, setPostEditMode] = useState(false)
-
-  const { user } = useContext(TransactionContext)
+  const { dbUser, accessToken } = useContext(TransactionContext)
 
   // Pull Threshold data
   useEffect(()=>{
-    if(!user){
-      navigate(`/creator/${post.creator.id}`)
+    if(!dbUser){
+      navigate(`/app`)
     } else if(post){
-      if(user.id === post.creator.user_id){
+      if(dbUser.id === post.creator.user_id){
         console.log("creator")
       } else {
         console.log("get threshold")
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${user.id}/${post.creator.id}`).then((response)=>{
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${dbUser.id}/${post.creator.id}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((response)=>{
           if(response.data.length === 0){
             navigate(`/creator/${post.creator.id}`)
           } else if(response.data[0].total_contribution < post.creator.threshold){
@@ -38,11 +41,15 @@ export default function Post(){
         })
       }
     }
-  },[user])
+  },[dbUser])
 
   // Pull post data
   useEffect(()=>{
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/posts/post/${post_id}`).then((response)=>{
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/posts/post/${post_id}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((response)=>{
       console.log(response.data[0])
       setPost(response.data[0])
     })
@@ -50,7 +57,11 @@ export default function Post(){
 
   // Pull comment data
   useEffect(()=>{
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/comments/post/${post_id}`).then((response)=>{
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/comments/post/${post_id}`,{
+      headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+    }).then((response)=>{
       console.log(response.data)
       setComments(response.data)
     })
@@ -59,15 +70,20 @@ export default function Post(){
   function handleNewComment(){
     try{
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/comments/create`,{
-        user_id: user.id,
+        user_id: dbUser.id,
         post_id: post.id,
         comment: newComment
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       }).then((response)=>{
         console.log(response.data)
         let createdComment = response.data
         createdComment.user = {
-          display_name: user.display_name,
-          photo_url: user.photo_url
+          display_name: dbUser.display_name,
+          photo_url: dbUser.photo_url
         }
         let newComments = [...comments]
         newComments.unshift(createdComment)
@@ -83,6 +99,10 @@ export default function Post(){
     try{
       axios.put(`${process.env.REACT_APP_BACKEND_URL}/comments/edit/${id}`,{
         comment: comment
+      },{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       }).then((response)=>{
         console.log(response.data[1][0])
         let newComments = [...comments]
@@ -101,7 +121,11 @@ export default function Post(){
 
   function deleteComment(id){
     try{
-      axios.delete(`${process.env.REACT_APP_BACKEND_URL}/comments/delete/${id}`).then((response)=>{
+      axios.delete(`${process.env.REACT_APP_BACKEND_URL}/comments/delete/${id}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((response)=>{
         console.log(response)
         let newComments = [...comments]
         const index = newComments.findIndex(object => {
@@ -118,7 +142,11 @@ export default function Post(){
 
   function handlePostDelete(){
     try{
-      axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/delete/${post.id}`).then(()=>{
+      axios.delete(`${process.env.REACT_APP_BACKEND_URL}/posts/delete/${post.id}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then(()=>{
         navigate(`/creator/${post.creator.id}`)
       })
     }catch (err){
@@ -132,6 +160,11 @@ export default function Post(){
         title: title,
         content: content,
         image: imageUrl
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       }).then((response)=>{
         console.log(response.data[1][0])
         let newPost = {...post}
@@ -166,7 +199,7 @@ export default function Post(){
       return(
         <Comment
           id = {comment.id}
-          user = {user}
+          user = {dbUser}
           commentUserId = {comment.user_id}
           name = {comment.user.display_name}
           photo_url= {comment.user.photo_url}
@@ -199,7 +232,7 @@ export default function Post(){
           <div className="font-raleway">
             <div className="flex flex-row justify-between items-center">
               <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{post.title}</h1>
-              {user.id === post.creator.user_id ?
+              {dbUser.id === post.creator.user_id ?
               <div className="flex flex-row flex-nowrap">
                 <button onClick={handlePostEdit}><BiEdit className="h-8 w-8 mx-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
                 <button onClick={handlePostDelete}><RiDeleteBinLine className="h-8 w-8 ml-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>

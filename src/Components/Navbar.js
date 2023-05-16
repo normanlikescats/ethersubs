@@ -5,7 +5,7 @@ import { MdOutlineAccountBalanceWallet } from "react-icons/md"
 import logo from "../Images/ethersubslogo.png"
 
 export default function Navbar() {
-  const {user, currentAccount, connectWallet} = useContext(TransactionContext)
+  const {dbUser, connectWallet, logout} = useContext(TransactionContext)
   const pathname = useLocation().pathname.split("/")[1];
   let appNavbar;
   if(pathname === "" || pathname === "about"){
@@ -14,8 +14,8 @@ export default function Navbar() {
     appNavbar = true
   }
   let truncAccount;
-  if(currentAccount){
-    truncAccount = `${currentAccount.slice(0, 5)}...${currentAccount.slice(-4)}`;
+  if(dbUser){
+    truncAccount = `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}`;
   }
 
   return (
@@ -49,15 +49,20 @@ export default function Navbar() {
             History
         </Link>
         {
-          user ? 
-          <Link className="p-2 font-raleway text-base lg:text-l border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to={`/profile/${user.id}`}>
-              Profile
-          </Link> :
-          null
-        }
-        <button onClick={connectWallet} className="flex flex-row items-center justify-between font-raleway text-base lg:text-l bg-button-green p-2 rounded-lg hover:bg-button-hover transition ease-in-out duration-500">
-            <MdOutlineAccountBalanceWallet className="w-4 h-4 mr-1"/> {currentAccount ? truncAccount : "Connect Wallet"}
-        </button>
+          dbUser ? 
+          <>
+            <Link className="p-2 font-raleway text-base lg:text-l border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to={`/profile/${dbUser.id}`}>
+                Profile
+            </Link> 
+            <button className="flex flex-row items-center justify-between font-raleway text-base lg:text-l bg-button-green p-2 rounded-lg hover:bg-button-hover transition ease-in-out duration-500" onClick={()=>logout({ logoutParams: { returnTo: "http://localhost:3000/app" } })}>
+              <MdOutlineAccountBalanceWallet className="w-4 h-4 mr-1"/><p>{truncAccount}</p>
+            </button>
+          </>
+          :
+            <button onClick={connectWallet} className="flex flex-row items-center justify-between font-raleway text-base lg:text-l bg-button-green p-2 rounded-lg hover:bg-button-hover transition ease-in-out duration-500">
+              <MdOutlineAccountBalanceWallet className="w-4 h-4 mr-1"/> Connect Wallet
+            </button>
+        }        
       </>
       }  
     </div>
