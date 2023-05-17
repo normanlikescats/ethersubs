@@ -53,7 +53,7 @@ export default function Searchbar(props){
   return(
     <div className="w-10/12 lg:w-1/2">
       <form className="flex flex-col">
-        <h2 className="font-lilita text-xl 2xl:text-3xl xl:text-2xl">Find a Creator!</h2>
+        <h2 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">Find a Creator!</h2>
         <div className="flex flex-row items-center">
           <input type="text" id="search-field" value={input} onChange={handleChange} className="px-2 py-0.25 w-full h-8 font-raleway text-black rounded-md focus:outline-none"/>
           <TbSearch type="submit" onClick={handleSubmit} onKeyDown={handleKeyPress} className="h-9 w-9 ml-2 hover:border-solid hover:cursor-pointer transition ease-in-out duration-500"/>
