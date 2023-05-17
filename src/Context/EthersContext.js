@@ -41,13 +41,34 @@ export const TransactionProvider = ({children}) =>{
         scope: "openid profile email phone",
       }).then((response)=>{
         console.log(response)
+        console.log(token)
         setAccessToken(response)
-        getUser(response);
-      })
+        console.log(user)
+        console.log(response)
+        const accounts = ethereum.request({method: 'eth_requestAccounts'}).then(()=>{
+          const wallet = accounts[0]
+          try{
+            console.log("get user")
+            axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
+              wallet: wallet
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${response}`,
+              }
+            }).then((response)=>{
+              console.log(`pull user data: ${response.data}`)
+              setDbUser(response.data)
+            })
+          }catch(err){
+            console.log(err)
+          }
+        })
+      });  
     }
-  },[isAuthenticated])
+  },[isAuthenticated, getAccessTokenSilently, user])
   
-  const IsConnected = async () => {
+  /*const IsConnected = async () => {
     try{
       if(!ethereum) return alert("Please install Metamask")
 
@@ -71,7 +92,7 @@ export const TransactionProvider = ({children}) =>{
       console.log(error)
       throw new Error("No Ethereum Object")
     }
-  }
+  }*/
 
   const connectWallet = async () =>{
     try{
@@ -88,7 +109,7 @@ export const TransactionProvider = ({children}) =>{
     }
   }
 
-  const getUser= async (response)=> {
+  /*const getUser= async (response)=> {
     console.log(user)
     console.log(response)
     const accounts =  await ethereum.request({method: 'eth_requestAccounts'});
@@ -109,10 +130,10 @@ export const TransactionProvider = ({children}) =>{
     }catch(err){
       console.log(err)
     }
-  }
+  }*/
 
   const sendEth = async(recipient, amount, user_id, creator_id) =>{
-    const gas_price = await provider.getGasPrice();
+    //const gas_price = await provider.getGasPrice();
     const formattedAddress = await ethers.utils.isAddress(recipient)
     console.log(formattedAddress)
     const tx = {

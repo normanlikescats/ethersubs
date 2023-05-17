@@ -28,7 +28,7 @@ export default function Transactions(){
         console.log(err)
       }
     }
-  },[dbUser])
+  },[dbUser, accessToken])
 
   // Grab creator if any
   useEffect(()=>{
@@ -61,7 +61,7 @@ export default function Transactions(){
         setcreatorTransactions(response.data)
       })
     }
-  },[creatorIdArr])
+  },[creatorIdArr, accessToken])
 
   function toggleUserMode(){
     setUserMode(()=>!userMode)

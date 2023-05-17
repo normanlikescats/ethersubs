@@ -6,7 +6,6 @@ import { GiCancel } from 'react-icons/gi'
 import { storage } from "../firebase"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { v4 } from 'uuid';
-import placeholder from "../Images/placeholder.png";
 import {
   SiSubstack,
   SiDiscord,
@@ -49,7 +48,7 @@ export default function CreatorForm(){
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/${creator_id}`).then((response)=>{
       setCreator(response.data[0])
     })
-  },[])
+  },[creator_id])
 
   // Set Data
   useEffect(()=>{

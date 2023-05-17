@@ -15,7 +15,7 @@ export default function PostList(props){
       console.log(response.data)
       setPosts(response.data)
     })
-  }, [])
+  }, [props.creator_id, props.accessToken])
 
   function handlePostClick(id){
     navigate(`/posts/${id}`)

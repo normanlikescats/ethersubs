@@ -37,7 +37,7 @@ export default function Creator(){
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/${creator_id}`).then((response)=>{
       setCreator(response.data[0])
     })
-  },[])
+  },[creator_id])
 
   // Pull Threshold data
   useEffect(()=>{
@@ -54,7 +54,7 @@ export default function Creator(){
         }
       })
     }
-  },[dbUser, creator])
+  },[dbUser, creator, accessToken, creator_id])
 
   // Pull follow data
   useEffect(()=>{
@@ -67,7 +67,7 @@ export default function Creator(){
         setFollows(response.data)
       })
     }
-  },[dbUser])
+  },[dbUser, creator_id, accessToken])
 
   // For React-Select Component
   const optionsArr = [

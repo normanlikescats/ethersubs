@@ -20,17 +20,12 @@ export default function PostForm(){
   useEffect(()=>{
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/${creator_id}`).then((response)=>{
       setCreator(response.data[0])
-      checkConnected(response.data[0]);
+      if(response.data[0].user_id !== dbUser.id){
+        alert("Please connect your wallet")
+        navigate(`/creator/${creator_id}`)
+      } 
     })
-  },[])
-
-  // Check if the user is the creator
-  function checkConnected(creator){
-    if(creator.user_id !== dbUser.id){
-      alert("Please connect your wallet")
-      navigate(`/creator/${creator_id}`)
-    } 
-  }
+  },[creator_id, dbUser.id, navigate])
 
   // Store uploaded file
   function handleFile(e){
