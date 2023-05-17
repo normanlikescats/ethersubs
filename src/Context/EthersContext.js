@@ -235,6 +235,9 @@ export const TransactionProvider = ({children}) =>{
         }).then((response)=>{
           console.log(response)
           if(response.data.created === false){
+            console.log(typeof response.data.threshold.total_contribution)
+            console.log(typeof response.data.threshold.formattedAmount)
+            console.log(typeof formattedAmount/1.0)
             const newTotal = response.data.threshold.total_contribution + formattedAmount
             console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
