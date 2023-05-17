@@ -65,6 +65,7 @@ export const TransactionProvider = ({children}) =>{
             console.log(err)
           }
         }
+        getUser();
       }) 
     }
   },[isAuthenticated, getAccessTokenSilently, user])
