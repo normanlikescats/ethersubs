@@ -7,7 +7,7 @@ import { BiEdit } from 'react-icons/bi'
 
 export default function Profile(){
   const user_id = useParams().id;
-  const { dbUser, accessToken } = useContext(TransactionContext)
+  const { dbUser } = useContext(TransactionContext)
   const [name, setName] = useState('')
   const [photoUrl, setPhotoUrl] = useState('')
   const [wallet, setWallet] = useState('')
@@ -26,7 +26,7 @@ export default function Profile(){
         setCreator(response.data[0].creator)
         setCreatedDate(response.data[0].created_at)
       })
-  },[dbUser])
+  },[dbUser, user_id])
 
   // Pull Creator data if any
   useEffect(()=>{
@@ -40,7 +40,7 @@ export default function Profile(){
         console.log(err)
       }
     }
-  },[dbUser])
+  },[dbUser, user_id])
 
   function handleCreatorClick(id){
     navigate(`/creator/${id}`)

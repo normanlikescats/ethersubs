@@ -45,6 +45,7 @@ export default function ProfileForm(){
     e.preventDefault();
     setPostImage('');
     setImageUrl(null);
+    setPhotoUrl(dbUser.photo_url)
   }
 
   // Handle Submit

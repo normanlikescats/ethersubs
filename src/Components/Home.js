@@ -29,7 +29,7 @@ export default function Home(){
         setFollows(response.data)
       })
     }
-  },[dbUser])
+  },[dbUser, accessToken])
 
   function handleSubmit(results){
     navigate(`/creator/${results[0].id}`)

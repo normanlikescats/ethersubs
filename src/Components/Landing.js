@@ -1,6 +1,6 @@
-import React, {useEffect} from "react";
+import React from "react";
 import bubbles from "../Images/bubbles.gif"
-import axios from "axios";
+
 
 export default function Landing(){
   return(

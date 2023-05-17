@@ -17,6 +17,7 @@ export default function Post(){
   const [postEditMode, setPostEditMode] = useState(false)
   const { dbUser, accessToken } = useContext(TransactionContext)
 
+  console.log(threshold)
   // Pull Threshold data
   useEffect(()=>{
     if(!dbUser){
@@ -41,7 +42,7 @@ export default function Post(){
         })
       }
     }
-  },[dbUser])
+  },[dbUser,accessToken, post, navigate])
 
   // Pull post data
   useEffect(()=>{
@@ -53,7 +54,7 @@ export default function Post(){
       console.log(response.data[0])
       setPost(response.data[0])
     })
-  },[])
+  },[accessToken, post_id])
 
   // Pull comment data
   useEffect(()=>{
@@ -65,7 +66,7 @@ export default function Post(){
       console.log(response.data)
       setComments(response.data)
     })
-  },[])
+  },[accessToken, post_id])
 
   function handleNewComment(){
     try{
