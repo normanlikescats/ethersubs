@@ -43,10 +43,10 @@ export const TransactionProvider = ({children}) =>{
         console.log(response)
         console.log(token)
         setAccessToken(response)
-        console.log(user)
-        console.log(response)
         const accounts = ethereum.request({method: 'eth_requestAccounts'}).then(()=>{
           const wallet = accounts[0]
+          console.log(accounts)
+          console.log(wallet)
           try{
             console.log("get user")
             axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
