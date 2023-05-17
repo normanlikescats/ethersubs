@@ -217,7 +217,7 @@ export const TransactionProvider = ({children}) =>{
 
   const addThreshold = async (user_id, creator_id, amount, asset)=>{
     let currentETHPrice;
-    let formattedAmount = amount
+    let formattedAmount = +amount
     if(asset !== "ETH"){
       console.log("noteth")
       axios.get(`https://api.coinbase.com/v2/prices/ETH-USD/spot`).then((response)=>{

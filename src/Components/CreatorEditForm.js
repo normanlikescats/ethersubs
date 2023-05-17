@@ -121,7 +121,7 @@ export default function CreatorForm(){
         }
       }).then((response)=>{
           console.log(response.data)
-          navigate(`/creator/${response.data.id}`)
+          navigate(`/creator/${response.data[1][0].id}`)
         })
       } catch(err){
         console.log(err)
