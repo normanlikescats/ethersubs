@@ -253,7 +253,7 @@ export const TransactionProvider = ({children}) =>{
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
           user_id: user_id,
           creator_id: creator_id,
-          amount: amount
+          amount: formattedAmount
         },
         {
           headers: {
@@ -262,7 +262,7 @@ export const TransactionProvider = ({children}) =>{
         }).then((response)=>{
           console.log(response)
           if(response.data.created === false){
-            const newTotal = response.data.threshold.total_contribution + amount
+            const newTotal = response.data.threshold.total_contribution + formattedAmount
             console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
               newTotalAmount: newTotal
