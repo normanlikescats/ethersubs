@@ -43,7 +43,8 @@ export const TransactionProvider = ({children}) =>{
         console.log(response)
         console.log(token)
         setAccessToken(response)
-        const accounts = ethereum.request({method: 'eth_requestAccounts'}).then(()=>{
+        const getUser = async ()=>{
+          const accounts = await ethereum.request({method: 'eth_requestAccounts'})
           const wallet = accounts[0]
           console.log(accounts)
           console.log(wallet)
@@ -63,8 +64,8 @@ export const TransactionProvider = ({children}) =>{
           }catch(err){
             console.log(err)
           }
-        })
-      });  
+        }
+      }) 
     }
   },[isAuthenticated, getAccessTokenSilently, user])
   
