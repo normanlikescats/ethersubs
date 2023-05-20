@@ -103,7 +103,8 @@ export const TransactionProvider = ({children}) =>{
       const wallet = accounts[0]
       setCurrentAccount(wallet);
       await loginWithRedirect({
-            redirectUri: `https://ethersubs.netlify.app/app`,
+            //redirectUri: `https://ethersubs.netlify.app/app`,
+            redirectUri: `http://localhost:3000/app`,
         });
     } catch(error){
       console.log(error)

@@ -21,6 +21,7 @@ import { FaEthereum } from "react-icons/fa";
 import axios from "axios";
 import Select from "react-select";
 import PostList from "./PostList";
+import { RiDeleteBinLine } from 'react-icons/ri';
 
 export default function Creator(){
   const navigate = useNavigate();
@@ -162,11 +163,26 @@ export default function Creator(){
     navigate(`/creator/edit/${creator.id}`)
   }
 
+  function handleDelete(){
+    try{
+      axios.delete(`${process.env.REACT_APP_BACKEND_URL}/creators/delete/${creator_id}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then(()=>{
+        navigate(`/profile/${dbUser.id}`)
+      })
+    } catch(err){
+      console.log(err)
+    }
+  }
+
   return(
     <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
        { String(dbUser.id) === String(creator.user_id) ?
         <div className="flex flex-row justify-end">
           <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit/></button>
+          <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleDelete}><RiDeleteBinLine/></button>
         </div> :
         null
       }

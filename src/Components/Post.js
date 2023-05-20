@@ -90,6 +90,7 @@ export default function Post(){
         newComments.unshift(createdComment)
         setNewComment('')
         setComments(newComments)
+        console.log(newComments)
       })
     } catch(err){
       console.log(err)
