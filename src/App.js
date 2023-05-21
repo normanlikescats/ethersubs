@@ -13,6 +13,7 @@ import Post from "./Components/Post";
 import ProfileForm from "./Components/ProfileForm"
 import CreatorForm from "./Components/CreatorForm";
 import CreatorEditForm from "./Components/CreatorEditForm";
+import Footer from "./Components/Footer"
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/history" element = {<Transactions/>} />
           <Route path="/*" element = {<Error/>}/>
         </Routes>
+        <Footer/>
       </BrowserRouter>
     </div>
   );

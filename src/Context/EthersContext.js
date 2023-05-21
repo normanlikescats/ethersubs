@@ -31,6 +31,7 @@ export const TransactionProvider = ({children}) =>{
   const [ currentAccount, setCurrentAccount ] = useState('');
   const [ dbUser, setDbUser ] = useState('');
   const [ accessToken, setAccessToken ] = useState('')
+  const [ isLoading, setLoading ] = useState(false)
   
   /*useEffect(()=>{
     IsConnected();
@@ -290,7 +291,7 @@ export const TransactionProvider = ({children}) =>{
   console.log(dbUser)
   console.log(accessToken)
   return(
-    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, dbUser, setDbUser, accessToken, logout}}>
+    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, dbUser, setDbUser, accessToken, logout, isLoading, setLoading}}>
       {children}
     </TransactionContext.Provider>
   )

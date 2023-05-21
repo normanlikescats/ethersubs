@@ -187,7 +187,7 @@ export default function Creator(){
         null
       }
       <div className="flex flex-col justify-center items-center">
-        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{creator.name}</h1>
+        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pt-5 pb-3">{creator.name}</h1>
         <img src={creator.image} alt={creator.name} className="w-72 aspect-square object-cover rounded-lg"/>
         <div className="flex flex-col text-left p-8">
           <div className="flex flex-row items-center justify-between pt-3">
@@ -202,7 +202,7 @@ export default function Creator(){
                 </button>         
               }
           </div>
-          <p className="font-raleway">{creator.bio}</p>
+          <p className="font-raleway pb-3">{creator.bio}</p>
           <div className="flex md:flex-row flex-col justify-between">
             <div className="w-full md:w-1/2 my-2 md:mr-1 p-2 bg-panel-blue/40 rounded-lg shadow-xl">
               <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl">Social Links</h3>

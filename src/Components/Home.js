@@ -3,19 +3,22 @@ import Searchbar from "./Searchbar";
 import { useNavigate } from "react-router";
 import axios from 'axios';
 import { TransactionContext } from '../Context/EthersContext';
+import LoadingCreators from "./LoadingCreator";
 
 export default function Home(){
   const navigate = useNavigate();
   const [creatorsList, setCreatorsList] = useState('');
   const [follows, setFollows] = useState([])
-  const { dbUser, accessToken } = useContext(TransactionContext);
+  const { dbUser, accessToken, isLoading, setLoading } = useContext(TransactionContext);
 
   useEffect(()=>{
+    setLoading(true)
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/all`).then((response)=>{
       console.log(response)
+      setLoading(false)
       setCreatorsList(response.data)
     })
-  },[])
+  },[setLoading])
 
   // Pull follow data
   useEffect(()=>{
@@ -43,7 +46,7 @@ export default function Home(){
   if(creatorsList){
     creatorItems = creatorsList.map((creator)=>{
       return(
-        <div onClick={()=>handleClick(creator.id)} className="flex flex-col items-center w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div onClick={()=>handleClick(creator.id)} className="flex flex-col items-center w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img src={creator.image} alt={creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
           <h3 className="font-lilita text-left w-11/12">{creator.name}</h3>
           <p className="font-raleway text-left w-11/12">{creator.bio.slice(0,120)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(creator.id)}> Continue reading →</span></p>
@@ -56,7 +59,7 @@ export default function Home(){
   if(follows){
     followItems = follows.map((follow)=>{
       return(
-        <div onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img src={follow.creator.image} alt={follow.creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
           <h3 className="font-lilita text-left w-11/12">{follow.creator.name}</h3>
           <p className="font-raleway text-left w-11/12">{follow.creator.bio.slice(0,120)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(follow.creator_id)}> Continue reading →</span></p>
@@ -64,6 +67,8 @@ export default function Home(){
       )
     })
   }
+
+  
   
   return(
     <div className="flex flex-col justify-center items-center w-full">
@@ -77,9 +82,12 @@ export default function Home(){
         </div> 
       }
       <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Top Creators</h2>
-      <div className="flex flex-row justify-center flex-wrap py-12 px-24 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-8">
-        {creatorItems}
-      </div>
+        {isLoading ?
+          <LoadingCreators/>:
+          <div className="flex flex-row justify-center flex-wrap py-12 px-24 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-8">
+            {creatorItems}
+          </div>
+        }
     </div>
   )
 }
