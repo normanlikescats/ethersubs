@@ -6,16 +6,18 @@ import { GiCancel } from 'react-icons/gi'
 import { useNavigate } from "react-router-dom"
 
 export default function Comment(props){
-  const [comment, setComment] = useState(props.comment)
+  const [comment, setComment] = useState(null)
   const [editCommentMode, setEditCommentMode] = useState(false)
   const navigate = useNavigate();
-  
+
   function toggleEditMode(){
+    setComment(props.comment)
     setEditCommentMode(!editCommentMode)
   }
   
   function handleCommentDelete(){
     props.deleteComment(props.id)
+    setComment(null)
   }
 
   function submitEdit(){
@@ -25,7 +27,7 @@ export default function Comment(props){
 
   
   function handleUserProfileClick(){
-    navigate(`/profile/${props.user.id}`)
+    navigate(`/profile/${props.commentUserId}`)
   }
 
   return(
@@ -58,7 +60,6 @@ export default function Comment(props){
                 <div>
                   <button onClick={submitEdit}><FiCheckSquare className="h-5 w-5 mx-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
                   <button onClick={toggleEditMode}><GiCancel className="h-5 w-5 mx-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
-                  <button onClick={handleCommentDelete}><RiDeleteBinLine className="h-5 w-5 ml-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
                 </div>
               : null
               }

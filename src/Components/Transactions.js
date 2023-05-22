@@ -108,14 +108,14 @@ export default function Transactions(){
   }
 
   return(
-    <div className="flex flex-col px-24 py-12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32"> 
+    <div className="flex flex-col absolute top-32 px-24 py-12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32"> 
       <div className="flex flex-row justify-between content-center">
         <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">Transaction History</h1>
         <button onClick={toggleUserMode} className="p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">{userMode ? "Creator View": "User View" }</button>
       </div>
       <table className="table-fixed border border-white my-3">
         <thead>
-          <tr className="rounded-lg">
+          <tr>
             <th className="border border-white py-2 px-8">Sender</th>
             <th className="border border-white py-2 px-8">Recipient</th>
             <th className="border border-white py-2 px-5">Asset</th>
