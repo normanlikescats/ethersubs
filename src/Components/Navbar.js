@@ -13,6 +13,7 @@ export default function Navbar() {
   } else{
     appNavbar = true
   }
+  
   let truncAccount;
   if(dbUser){
     truncAccount = `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}`;

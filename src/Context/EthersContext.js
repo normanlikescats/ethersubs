@@ -32,6 +32,8 @@ export const TransactionProvider = ({children}) =>{
   const [ dbUser, setDbUser ] = useState('');
   const [ accessToken, setAccessToken ] = useState('')
   const [ isLoading, setLoading ] = useState(false)
+  const [ walletBalance, setWalletBalance ] = useState('')
+  const [ ethBalance, setEthBalance ] = useState('')
   
   /*useEffect(()=>{
     IsConnected();
@@ -138,6 +140,33 @@ export const TransactionProvider = ({children}) =>{
       console.log(err)
     }
   }*/
+
+  const getWalletBalance = async(token)=>{
+    if(token !== "ETH"){
+      let contractAddress;
+      let abi;
+      let decimals;
+      if(token === "DAI"){
+        contractAddress = daiAddress;
+        abi = daiABI;
+        decimals = daiDecimals;      
+      } else if (token === "USDT"){
+        contractAddress = usdtAddress;
+        abi = usdtABI;
+        decimals = usdtDecimals; 
+      } else if (token === "USDC"){
+        contractAddress = usdcAddress;
+        abi = usdcABI;  
+        decimals = usdcDecimals; 
+      }
+      const contract = new ethers.Contract(contractAddress, abi, signer);
+      const balance = ((await contract.balanceOf(dbUser.wallet)/10**decimals).toString());
+      setWalletBalance(balance)
+    } else {
+      const balance = await provider.getBalance(dbUser.wallet)
+      setEthBalance((balance/10**18).toString().slice(0,5))
+    }
+  }
 
   const sendEth = async(recipient, amount, user_id, creator_id) =>{
     //const gas_price = await provider.getGasPrice();
@@ -291,7 +320,7 @@ export const TransactionProvider = ({children}) =>{
   console.log(dbUser)
   console.log(accessToken)
   return(
-    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, dbUser, setDbUser, accessToken, logout, isLoading, setLoading}}>
+    <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, dbUser, setDbUser, accessToken, logout, isLoading, setLoading, walletBalance, ethBalance, getWalletBalance}}>
       {children}
     </TransactionContext.Provider>
   )

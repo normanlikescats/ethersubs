@@ -31,7 +31,7 @@ export default function Creator(){
   const [customAmount, setCustomAmount] = useState('');
   const [follows, setFollows] = useState([])
   const [threshold, setThreshold] = useState(false)
-  const { sendErc20, sendEth, dbUser, accessToken } = useContext(TransactionContext)
+  const { sendErc20, sendEth, dbUser, accessToken, getWalletBalance, walletBalance, ethBalance } = useContext(TransactionContext)
 
   // Pull Creator Data
   useEffect(()=>{
@@ -69,6 +69,11 @@ export default function Creator(){
       })
     }
   },[dbUser, creator_id, accessToken])
+
+  // Pull Wallet ETH Balance
+  useEffect(()=>{
+    getWalletBalance("ETH")
+  })
 
   // For React-Select Component
   const optionsArr = [
@@ -152,7 +157,9 @@ export default function Creator(){
   }
 
   function handleSelect(selected){
+    console.log(selected)
     setSelectedOption(selected)
+    getWalletBalance(selected.value)
   }
 
   function handleNewPost(){
@@ -249,15 +256,30 @@ export default function Creator(){
               <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl text-left">Support Me!</h3>
               <p className="font-raleway">Contribute ⟠ {creator.threshold} or more to gain access to exclusive content!</p>
               <div className="flex flex-row items-center">
-                <button onClick={()=>{handleETHPayment(1)}} className="flex flex-row items-center p-2 my-2 mr-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
-                  <FaEthereum/> <p className="font-lilita">{creator.tier_1}</p>
-                </button>
-                <button onClick={()=>{handleETHPayment(2)}} className="flex flex-row items-center p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
-                  <FaEthereum/> <p className="font-lilita">{creator.tier_2}</p>
-                </button>
-                <button onClick={()=>{handleETHPayment(3)}} className="flex flex-row items-center p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
-                  <FaEthereum/> <p className="font-lilita">{creator.tier_3}</p>
-                </button>
+                {ethBalance < creator.tier_1 ?
+                  <button onClick={()=>{handleETHPayment(1)}} disabled className="flex flex-row items-center p-2 m-2 rounded-lg disabled:bg-purple-300/80">
+                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_1}</p>
+                  </button> :
+                  <button onClick={()=>{handleETHPayment(1)}} className="flex flex-row items-center p-2 my-2 mr-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+                    <FaEthereum/> <p className="font-lilita">{creator.tier_1}</p>
+                  </button>
+                }
+                {ethBalance < creator.tier_2 ?
+                  <button onClick={()=>{handleETHPayment(2)}} disabled className="flex flex-row items-center p-2 m-2 rounded-lg disabled:bg-purple-300/80">
+                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_2}</p>
+                  </button> :
+                  <button onClick={()=>{handleETHPayment(2)}} className="flex flex-row items-center p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+                    <FaEthereum/> <p className="font-lilita">{creator.tier_2}</p>
+                  </button>
+                }
+                {ethBalance < creator.tier_3 ?
+                  <button onClick={()=>{handleETHPayment(3)}} disabled className="flex flex-row items-center p-2 m-2 rounded-lg disabled:bg-purple-300/80">
+                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_3}</p>
+                  </button> :
+                  <button onClick={()=>{handleETHPayment(3)}} className="flex flex-row items-center p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+                    <FaEthereum/> <p className="font-lilita">{creator.tier_3}</p>
+                  </button>
+                }
               </div>
               <div className="flex flex-row">
                 <Select
@@ -266,9 +288,15 @@ export default function Creator(){
                   value= {selectedOption}
                   components={{Option: IconOption}}
                   />
-                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-black text-right px-5 w-1/4 rounded-r-lg"/>
-                  <button onClick={handleCustomPayment} className="font-raleway p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm</button>
-              </div>            
+                  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? 
+                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-black text-right px-5 w-1/4 rounded-lg focus:outline-none border-2 border-solid border-red-400"/>:
+                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-black text-right px-5 w-1/4 rounded-lg focus:outline-none"/>}
+                  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? 
+                    <button onClick={handleCustomPayment} disabled className="font-raleway ml-5 p-2 disabled:bg-purple-300/80 rounded-lg"><p className="font-raleway text-purple-100/80">Confirm</p></button>:
+                    <button onClick={handleCustomPayment} className="font-raleway ml-5 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm</button>
+                  }
+              </div>
+              <p className="font-raleway">Balance: {(selectedOption.value && selectedOption.value !== "ETH") ? <span>{walletBalance} {selectedOption.value}</span> : <span>{ethBalance} ETH</span>}  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? <span className="text-red-400 font-medium"> - Insufficient Balance</span> : null}</p>
             </div>
           </div>
           <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-2">Posts</h3>
