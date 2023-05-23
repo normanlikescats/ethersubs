@@ -6,6 +6,7 @@ import { GiHamburgerMenu } from 'react-icons/gi'
 import { FaArrowRight } from 'react-icons/fa'
 import logo from "../Images/ethersubslogo.png"
 
+
 export default function Navbar() {
   const {dbUser, connectWallet, logout} = useContext(TransactionContext)
   const [sidebar, setSidebar] = useState('')
