@@ -34,9 +34,9 @@ export default function Post(){
       }).then((response)=>{
           if(response.data.length === 0){
             navigate(`/creator/${post.creator.id}`)
-          } else if(response.data[0].total_contribution < post.creator.threshold){
+          } else if(response.data[0].status === false){
             navigate(`/creator/${post.creator.id}`)
-          } else if(response.data[0].total_contribution >= post.creator.threshold){
+          } else if(response.data[0].status){
             setThreshold(true)
           }
         })

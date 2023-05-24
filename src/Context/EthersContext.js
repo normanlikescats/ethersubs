@@ -177,7 +177,7 @@ export const TransactionProvider = ({children}) =>{
     }
   }
 
-  const sendEth = async(recipient, amount, user_id, creator_id) =>{
+  const sendEth = async(recipient, amount, user_id, creator_id, threshold) =>{
     //const gas_price = await provider.getGasPrice();
     const formattedAddress = await ethers.utils.isAddress(recipient)
     console.log(formattedAddress)
@@ -200,7 +200,7 @@ export const TransactionProvider = ({children}) =>{
       // add to txn history
       await addTransaction(user_id, creator_id, amount, "ETH", transaction.hash)
       // add to threshold
-      await addThreshold(user_id, creator_id, amount, "ETH")
+      await addThreshold(user_id, creator_id, amount, "ETH", threshold)
       toast.dismiss(loadingToast)
       toast.success("Transaction completed!",{
         position: "top-center",
@@ -214,7 +214,7 @@ export const TransactionProvider = ({children}) =>{
     }
   }
 
-  const sendErc20 = async(recipient, token, amount, user_id, creator_id) =>{
+  const sendErc20 = async(recipient, token, amount, user_id, creator_id, threshold) =>{
     let contractAddress;
     let abi;
     let decimals;
@@ -246,7 +246,7 @@ export const TransactionProvider = ({children}) =>{
       // add to txn history
       await addTransaction(user_id, creator_id, amount, token, result.transactionHash)
       // add to threshold
-      await addThreshold(user_id, creator_id, amount, token)
+      await addThreshold(user_id, creator_id, amount, token, threshold)
       toast.dismiss(loadingToast)
       toast.success("Transaction completed!",{
         position: "top-center",
@@ -281,19 +281,21 @@ export const TransactionProvider = ({children}) =>{
       }
   }
 
-  const addThreshold = async (user_id, creator_id, amount, asset)=>{
+  const addThreshold = async (user_id, creator_id, amount, asset, threshold)=>{
     let currentETHPrice;
     let formattedAmount = +amount
     if(asset !== "ETH"){
-      console.log("noteth")
       axios.get(`https://api.coinbase.com/v2/prices/ETH-USD/spot`).then((response)=>{
         currentETHPrice = +response.data.data.amount
         formattedAmount = +amount
         formattedAmount = formattedAmount/currentETHPrice
+        const status = formattedAmount > threshold
+        console.log(status)
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
           user_id: user_id,
           creator_id: creator_id,
-          amount: formattedAmount
+          amount: formattedAmount,
+          status: status 
         },{
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -305,9 +307,11 @@ export const TransactionProvider = ({children}) =>{
             console.log(typeof response.data.threshold.formattedAmount)
             console.log(typeof formattedAmount/1.0)
             const newTotal = response.data.threshold.total_contribution + formattedAmount
+            const updatedStatus = newTotal > threshold
             console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
-              newTotalAmount: newTotal
+              newTotalAmount: newTotal,
+              status: updatedStatus
             },{
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -319,10 +323,12 @@ export const TransactionProvider = ({children}) =>{
         })    
       })
     } else{
+      const status = formattedAmount > threshold
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
           user_id: user_id,
           creator_id: creator_id,
-          amount: formattedAmount
+          amount: formattedAmount,
+          status: status
         },
         {
           headers: {
@@ -332,9 +338,11 @@ export const TransactionProvider = ({children}) =>{
           console.log(response)
           if(response.data.created === false){
             const newTotal = response.data.threshold.total_contribution + formattedAmount
+            const updatedStatus = newTotal > threshold
             console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
-              newTotalAmount: newTotal
+              newTotalAmount: newTotal,
+              status: updatedStatus
             },
             {
               headers: {

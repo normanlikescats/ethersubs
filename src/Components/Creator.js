@@ -50,8 +50,7 @@ export default function Creator(){
         }
       }).then((response)=>{
         console.log(response.data)
-        console.log(creator.threshold)
-        if(response.data[0].total_contribution >= creator.threshold){
+        if(response.data[0].status){
           setThreshold(true)
         }
       })
@@ -145,7 +144,7 @@ export default function Creator(){
       amount = creator.tier_3
     }
     const creatorIdNum = +creator_id
-    sendEth(creator.user.wallet, amount, dbUser.id, creatorIdNum);
+    sendEth(creator.user.wallet, amount, dbUser.id, creatorIdNum, creator.threshold);
   }
 
   function handleCustomPayment(){
@@ -156,7 +155,7 @@ export default function Creator(){
       console.log("ETH")
       sendEth(creator.user.wallet, customAmount, dbUser.id, creatorIdNum)
     } else {
-      sendErc20(creator.user.wallet, selectedOption.value, customAmount, dbUser.id, creatorIdNum);
+      sendErc20(creator.user.wallet, selectedOption.value, customAmount, dbUser.id, creatorIdNum, creator.threshold);
     }
   }
 
