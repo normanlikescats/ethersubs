@@ -89,34 +89,34 @@ export default function Navbar() {
         </Link>
         <div>
             <GiHamburgerMenu onClick={handleSidebar} className="h-12 w-12 hover:animate-float mr-8 mt-5"/>
-            <div className={`flex flex-col top-0 right-0 bg-panel-blue fixed h-full w-1/3 transition ease-in-out duration-300 ${sidebar ? "translate-x-0 " : "translate-x-full"}`}>
+            <div className={`flex flex-col top-0 right-0 bg-panel-blue fixed h-full w-5/12 transition ease-in-out duration-300 ${sidebar ? "translate-x-0 " : "translate-x-full"}`}>
               <FaArrowRight className="text-white ml-6 mt-5 mb-4 h-8 w-8 hover:cursor-pointer" onClick={handleSidebarClose}/>
               {!appNavbar ?        
                 <div className="flex flex-col text-left">
-                  <Link className="m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/about">
+                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/about">
                     About
                   </Link>
-                  <a className="m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" href="https://github.com/normanlikescats/ethersubs-frontend" target="blank">
+                  <a className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" href="https://github.com/normanlikescats/ethersubs-frontend" target="blank">
                     Protocol
                   </a>
-                  <Link className="m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
+                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
                     Enter App
                   </Link>
                 </div> : 
                 <div className="flex flex-col text-left">
-                  <Link className="m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
+                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
                     Creators
                   </Link>
-                  <Link className="m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/history">
+                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/history">
                     History
                   </Link>
                   {
                     dbUser ? 
                     <>
-                      <Link onClick={handleSidebarClose} className="m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" to={`/profile/${dbUser.id}`}>
+                      <Link onClick={handleSidebarClose} className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" to={`/profile/${dbUser.id}`}>
                           Profile
                       </Link> 
-                      <button className="flex flex-row items-center justify-start m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md" onClick={()=>logout({ logoutParams: { 
+                      <button className="flex flex-row items-center justify-start m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={()=>logout({ logoutParams: { 
                           //returnTo: "https://ethersubs.netlify.app/app"
                           returnTo: "http://localhost:3000/app"
                         }})}>
@@ -124,7 +124,7 @@ export default function Navbar() {
                       </button>
                     </>
                     :
-                    <button onClick={connectWallet} className="flex flex-row items-center justify-start m-1 py-3 px-5 font-raleway text-lg lg:text-xl hover:bg-bg-blue/60 rounded-md">
+                    <button onClick={connectWallet} className="flex flex-row items-center justify-start m-1 py-3 px-5 font-raleway text-base lg:text-l xl:text-xl hover:bg-bg-blue/60 rounded-md">
                       <MdOutlineAccountBalanceWallet className="w-5 h-5 mr-2"/> Connect Wallet
                     </button>
                   }                     

@@ -22,7 +22,7 @@ import axios from "axios";
 import Select from "react-select";
 import PostList from "./PostList";
 import { RiDeleteBinLine } from 'react-icons/ri';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 
 export default function Creator(){
   const navigate = useNavigate();
@@ -193,34 +193,15 @@ export default function Creator(){
 
   return(
     <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
-      <ToastContainer
-        position="top-right"
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        toastStyle= {
-          {
-            color: '#474747',
-            textAlign: "left",
-            fontFamily: "raleway" 
-          }
-        }
-        progressStyle = {{background: '#b1b1b1'}}
-      />
-       { String(dbUser.id) === String(creator.user_id) ?
+      { String(dbUser.id) === String(creator.user_id) ?
         <div className="flex flex-row justify-end">
-          <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit/></button>
-          <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleDelete}><RiDeleteBinLine/></button>
+          <button className="mr-2 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit className="h-6 w-6"/></button>
+          <button className="mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleDelete}><RiDeleteBinLine className="h-6 w-6"/></button>
         </div> :
         null
       }
       <div className="flex flex-col justify-center items-center">
-        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pt-5 pb-3">{creator.name}</h1>
+        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl mt-3 pt-5 pb-3">{creator.name}</h1>
         <img src={creator.image} alt={creator.name} className="w-72 aspect-square object-cover rounded-lg"/>
         <div className="flex flex-col text-left p-8">
           <div className="flex flex-row items-center justify-between pt-3">

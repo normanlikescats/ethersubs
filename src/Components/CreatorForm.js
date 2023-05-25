@@ -128,25 +128,24 @@ export default function CreatorForm(){
       <div className="flex flex-row justify-end"> 
         <button className="mx-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleCancel}><GiCancel className="h-6 w-6"/></button>
       </div>
-      <div className="flex flex-col items-center text-left px-24 py-12">
+      <div className="flex flex-col items-center text-left px-6 md:px-12 lg:px-24 pt-6 pb-12">
         <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl mb-5">Create a Creator Page</h1>
-        <p>{imageUrl === null}</p>
         <img
         className="rounded-lg w-72 h-72 object-cover"
         src={imageUrl !== null ? imageUrl : placeholder}
         alt={name ?  name : dbUser.display_name}
         />
-        <div className="flex flex-row items-center justify-between w-full md:w-9/12 my-3">
+        <div className="flex flex-col md:flex-row items-center justify-between w-full md:w-9/12 lg:w-6/12 my-3">
           <input
             type="file"
             accept="image/*"
             onChange = {handleFile}
-            className="font-raleway file:m-2 file:p-2 file:font-raleway file:text-white file:font-white file:border-0 file:bg-button-purple file:rounded-lg hover:file:bg-hover-pink file:transition file:ease-in-out file:duration-500"
+            className="font-raleway self-start file:m-2 file:p-2 file:font-raleway file:text-white file:font-white file:border-0 file:bg-button-purple file:rounded-lg hover:file:bg-hover-pink file:transition file:ease-in-out file:duration-500"
            />
           {
             imageUrl === null ? 
-            <button className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500" onClick = {uploadPostImage} disabled={!postImage}>Upload image</button>:
-            <button className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500" onClick = {deleteImage}>Delete image</button>
+            <button className="mx-2 my-0 md:m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500 self-end" onClick = {uploadPostImage} disabled={!postImage}>Upload</button>:
+            <button className="mx-2 my-0 md:m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500 self-end" onClick = {deleteImage}>Delete</button>
           }
         </div>
         <div className="flex flex-col justify-start w-full md:w-9/12">
@@ -166,30 +165,30 @@ export default function CreatorForm(){
               </div>
               <div className="flex flex-row items-center">
                 <SiDiscord className="mr-2"/>
-                <input type="text" value={discord} placeholder="Discord" onChange={(e)=>{setDiscord(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+                <input type="text" value={discord} placeholder="Discord" onChange={(e)=>{setDiscord(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
               </div>
               <div className="flex flex-row items-center">
                 <SiYoutube className="mr-2"/>
-                <input type="text" value={youtube} placeholder="YouTube" onChange={(e)=>{setYoutube(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+                <input type="text" value={youtube} placeholder="YouTube" onChange={(e)=>{setYoutube(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
               </div>
               <div className="flex flex-row items-center">
                 <SiSubstack className="mr-2"/>
-                <input type="text" value={substack} placeholder="Substack" onChange={(e)=>{setSubstack(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+                <input type="text" value={substack} placeholder="Substack" onChange={(e)=>{setSubstack(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
               </div>
             </div>
             <div className="w-full md:w-1/2">
               <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Payment Tiers</h2>
               <div className="flex flex-row items-center">
                 <FaEthereum className="mr-2"/>
-                <input type="text" value={tier_1} placeholder="Tier 1" onChange={(e)=>{setTier1(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+                <input type="text" value={tier_1} placeholder="Tier 1" onChange={(e)=>{setTier1(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
               </div>
               <div className="flex flex-row items-center">
                 <FaEthereum className="mr-2"/>
-                <input type="text" value={tier_2} placeholder="Tier 2" onChange={(e)=>{setTier2(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+                <input type="text" value={tier_2} placeholder="Tier 2" onChange={(e)=>{setTier2(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
               </div>
               <div className="flex flex-row items-center">
                 <FaEthereum className="mr-2"/>
-                <input type="text" value={tier_3} placeholder="Tier 3" onChange={(e)=>{setTier3(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+                <input type="text" value={tier_3} placeholder="Tier 3" onChange={(e)=>{setTier3(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
               </div>
               <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Premium Content Tier</h2>
               <div className="flex flex-row items-center">

@@ -14,6 +14,7 @@ export default function Post(){
   const [comments, setComments] = useState('')
   const [newComment, setNewComment] = useState('')
   const [threshold, setThreshold] = useState('')
+  const [creator, setCreator] = useState(false)
   const [postEditMode, setPostEditMode] = useState(false)
   const { dbUser, accessToken } = useContext(TransactionContext)
 
@@ -23,8 +24,9 @@ export default function Post(){
     if(!dbUser){
       navigate(`/app`)
     } else if(post){
+      console.log(post)
       if(dbUser.id === post.creator.user_id){
-        console.log("creator")
+        setCreator(true)
       } else {
         console.log("get threshold")
         axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${dbUser.id}/${post.creator.id}`,{
@@ -217,6 +219,12 @@ export default function Post(){
 
   let postDate = new Date(post.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
   let postEditDate = new Date(post.updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })
+  let editButtons = (
+    <div className="flex flex-row flex-nowrap justify-end">
+      <button onClick={handlePostEdit}><BiEdit className="h-6 w-6 mr-2 mt-5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
+      <button onClick={handlePostDelete}><RiDeleteBinLine className="h-6 w-6 mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
+    </div>
+  )
   
 
   return(
@@ -228,27 +236,23 @@ export default function Post(){
           confirmPostEdit = {confirmPostEdit}
         /> : 
         null}
-      <div className="flex flex-col items-center text-left px-24 py-12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-4 md:mx-20 lg:mx-32 mb-20 w-10/12 md:w-8/12">
+        {creator ? 
+          editButtons:
+          null 
+        }
         {post ?
-        <>
+        <div className="flex flex-col items-center text-left px-3 md:px-12 lg:px-24 pt-6 pb-12">
           <div className="font-raleway">
-            <div className="flex flex-row justify-between items-center">
-              <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{post.title}</h1>
-              {dbUser.id === post.creator.user_id ?
-              <div className="flex flex-row flex-nowrap">
-                <button onClick={handlePostEdit}><BiEdit className="h-8 w-8 mx-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
-                <button onClick={handlePostDelete}><RiDeleteBinLine className="h-8 w-8 ml-1.5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
-              </div> :
-              null}
-            </div>
+            <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{post.title}</h1>
             <div className="flex flex-row items-center justify-between my-2">
               <div className="flex flex-row justify-start items-center">
                 <img className="h-10 w-10 rounded-full mr-2" src={post.creator.image} alt={post.creator.name}/>
-                <p className="font-raleway text-lg font-bold hover:underline" onClick={handleCreatorProfileClick}>{post.creator.name}</p>
+                <p className="font-raleway text-sm md:text-base lg:text-lg font-bold hover:underline" onClick={handleCreatorProfileClick}>{post.creator.name}</p>
               </div>
               <>
                 {postDate !== postEditDate ? 
-                <div className="flex flex-row font-raleway"><p className="italic mr-2">(Edited)</p><p>{postDate}</p></div>:
+                <div className="flex flex-row text-sm md:text-base lg:text-lg font-raleway"><p className="italic mr-2">(Edited)</p><p>{postDate}</p></div>:
                 <p>{postDate}</p>}
               </>
             </div>
@@ -259,12 +263,12 @@ export default function Post(){
             <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl mb-2">Drop a Comment!</h2>
             <div className="flex flex-col">
               <input type="text" value={newComment} onChange={(e)=>{setNewComment(e.target.value)}} className="text-black font-raleway rounded-md px-1 focus:outline-none w-full"/>
-              <button onClick={handleNewComment} className="p-2 my-2 w-1/5 self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Post Comment</button>
+              <button onClick={handleNewComment} className="p-2 my-2 w-20 md:w-50 self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Post</button>
             </div>
             <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl mb-2">Comments</h2>
             {commentItems}
           </div>
-        </>       
+        </div>       
        : null}
       </div>
     </>
