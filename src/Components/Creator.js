@@ -23,6 +23,7 @@ import Select from "react-select";
 import PostList from "./PostList";
 import { RiDeleteBinLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
+import Footer from './Footer'
 
 export default function Creator(){
   const navigate = useNavigate();
@@ -192,7 +193,8 @@ export default function Creator(){
   }
 
   return(
-    <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
+    <div>
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
       { String(dbUser.id) === String(creator.user_id) ?
         <div className="flex flex-row justify-end">
           <button className="mr-2 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit className="h-6 w-6"/></button>
@@ -221,7 +223,7 @@ export default function Creator(){
             <div className="w-full md:w-1/2 my-2 md:mr-1 p-2 bg-panel-blue/40 rounded-lg shadow-xl">
               <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl">Social Links</h3>
               <p className="font-raleway">Find me on these other platforms too!</p>
-              <div className="flex flex-row">
+              <div className="flex flex-row flex-wrap">
                 {
                   creator.website ?
                   <a href={creator.website} target="blank" className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
@@ -325,6 +327,8 @@ export default function Creator(){
         </div>
       </div>
     </div>    
+    <Footer/>
+    </div>
   )
 }
 

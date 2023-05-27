@@ -5,38 +5,50 @@ import axios from "axios";
 import Footer from './Footer'
 import LoadingTxns from "./LoadingTxns";
 
-export default function Transactions(){
+export default function TransactionsCreator(){
   const navigate = useNavigate();
   const { dbUser, accessToken, isLoading, setLoading } = useContext(TransactionContext);
-  const [display, setDisplay] = useState('')
-  const [userTransactions, setUserTransactions] = useState('')
+  const [creatorIdArr, setCreatorIdArr] = useState('')
+  const [creatorTransactions, setcreatorTransactions] = useState('')
   console.log(dbUser)
-  
-  // Grab user transactions
+
+  // Grab creator if any
   useEffect(()=>{
-    if(dbUser){
+    if(dbUser && dbUser.creator){
       setLoading(true)
-      setDisplay(<LoadingTxns/>)
       try{
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/user/${dbUser.id}`,{
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          }
-        }).then((response)=>{
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${dbUser.id}`).then((response)=>{
           console.log(response.data)
-          setLoading(false)
-          setUserTransactions(response.data)
+          let creatorArr = [];
+          for (let i = 0; i < response.data.length; i++){
+            creatorArr.push(response.data[i].id)
+          }
+          setCreatorIdArr(creatorArr);
         })
       } catch (err){
         console.log(err)
       }
-    } else(
-      setDisplay(<p className="my-12">Connect your wallet to view your transactions!</p>)
-    )
-  },[dbUser, accessToken, setLoading])
+    }
+  },[dbUser, setLoading])
+
+  // Grab Creator Transactions if any
+  useEffect(()=>{
+    if(creatorIdArr){
+      console.log(creatorIdArr)
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/creator/${creatorIdArr.join("-")}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
+      }).then((response)=>{
+        console.log(response.data)
+        setLoading(false)
+        setcreatorTransactions(response.data)
+      })
+    }
+  },[creatorIdArr, accessToken, setLoading])
 
   function toggleUserMode(){
-    navigate(`/history/creator`)
+    navigate(`/history/user`)
   }
 
   function handleProfile(id){
@@ -47,12 +59,12 @@ export default function Transactions(){
     navigate(`/creator/${id}`)
   }
 
-  let userTransactionItems;
-  if (userTransactions){
-    userTransactionItems = userTransactions.map((transaction)=>{
+  let creatorTransactionItems;
+  if (creatorTransactions){
+    creatorTransactionItems = creatorTransactions.map((transaction)=>{
       return(
-        <tr>
-          <td className="border border-white py-2 px-1 hover:text-hover-pink" onClick={()=>{handleProfile(transaction.user_id)}}>{ dbUser.display_name ? dbUser.display_name : `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}`}</td>
+        <tr className="last:border-rounded-b-lg">
+          <td className="border border-white py-2 px-1 hover:text-hover-pink" onClick={()=>{handleProfile(transaction.user_id)}}>{ transaction.user.display_name ? transaction.user.display_name : transaction.user.wallet }</td>
           <td className="border border-white py-2 px-1 hover:text-hover-pink" onClick={()=>{handleCreator(transaction.creator_id)}}>{ transaction.creator.name }</td>
           <td className="border border-white py-2 px-1">{ transaction.asset }</td>
           <td className="border border-white py-2 px-1">{ transaction.amount }</td>
@@ -65,13 +77,13 @@ export default function Transactions(){
 
   return(
     <div className="flex flex-col items-center">
-      <div className="flex flex-col px-3 md:px-12 lg:px-24 pt-12 pb-12 mb-20 rounded-2xl bg-panel-blue/40 shadow-xl"> 
+      <div className="flex flex-col px-3 md:px-12 lg:px-24 pt-12 pb-12 rounded-2xl bg-panel-blue/40 shadow-xl "> 
         <div className="flex grow flex-row justify-between content-center">
           <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">Transaction History</h1>
-          {dbUser.creator ? <button onClick={toggleUserMode} className="p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Creator View</button> : null}
+          <button onClick={toggleUserMode} className="p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">User View</button>
         </div>
-        {isLoading || !dbUser ?
-          display:
+        {isLoading?
+          <LoadingTxns/>:
           <table className="table-fixed border border-white my-3">
             <thead>
               <tr>
@@ -84,10 +96,10 @@ export default function Transactions(){
               </tr>
             </thead>
             <tbody>
-              {userTransactionItems ? userTransactionItems : null}
+              {creatorTransactionItems ? creatorTransactionItems : null}
             </tbody>
           </table>
-        } 
+        }
       </div>
       <Footer/>
     </div>

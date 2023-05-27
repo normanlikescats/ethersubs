@@ -5,7 +5,7 @@ import { TransactionContext } from '../Context/EthersContext';
 import Comment from "./Comment";
 import { BiEdit } from 'react-icons/bi'
 import { RiDeleteBinLine } from 'react-icons/ri';
-import PostEditForm from "./PostEditFrom";
+import Footer from './Footer'
 
 export default function Post(){
   const post_id = useParams().postId;
@@ -15,10 +15,8 @@ export default function Post(){
   const [newComment, setNewComment] = useState('')
   const [threshold, setThreshold] = useState('')
   const [creator, setCreator] = useState(false)
-  const [postEditMode, setPostEditMode] = useState(false)
   const { dbUser, accessToken } = useContext(TransactionContext)
 
-  console.log(threshold)
   // Pull Threshold data
   useEffect(()=>{
     if(!dbUser){
@@ -39,12 +37,13 @@ export default function Post(){
           } else if(response.data[0].status === false){
             navigate(`/creator/${post.creator.id}`)
           } else if(response.data[0].status){
+            console.log(threshold)
             setThreshold(true)
           }
         })
       }
     }
-  },[dbUser,accessToken, post, navigate])
+  },[dbUser,accessToken, post, navigate, threshold])
 
   // Pull post data
   useEffect(()=>{
@@ -158,37 +157,8 @@ export default function Post(){
     }
   }
 
-  function confirmPostEdit(title, content, imageUrl){
-    try{
-      axios.put(`${process.env.REACT_APP_BACKEND_URL}/posts/edit/${post.id}`,{
-        title: title,
-        content: content,
-        image: imageUrl
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      }).then((response)=>{
-        console.log(response.data[1][0])
-        let newPost = {...post}
-        newPost.content = response.data[1][0].content
-        newPost.title = response.data[1][0].title;
-        newPost.imageUrl = response.data[1][0].imageUrl;
-        setPost(newPost)
-        setPostEditMode(false)
-      })
-    } catch(err){
-      console.log(err)
-    }
-  }
-
   function handlePostEdit(){
-    setPostEditMode(true)
-  }
-
-  function handleCancel(){
-    setPostEditMode(false)
+    navigate(`/posts/${post.id}/edit`)
   }
 
   function handleCreatorProfileClick(){
@@ -228,22 +198,15 @@ export default function Post(){
   
 
   return(
-    <>
-      {postEditMode ?
-        <PostEditForm
-          post={post}
-          handleCancel={handleCancel}
-          confirmPostEdit = {confirmPostEdit}
-        /> : 
-        null}
+    <div className="flex flex-col items-center">
       <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-4 md:mx-20 lg:mx-32 mb-20 w-10/12 md:w-8/12">
         {creator ? 
           editButtons:
           null 
         }
         {post ?
-        <div className="flex flex-col items-center text-left px-3 md:px-12 lg:px-24 pt-6 pb-12">
-          <div className="font-raleway">
+        <div className="flex flex-col items-center text-left px-3 md:px-12 lg:px-24 pt-6 pb-12 ">
+          <div className="font-raleway w-full">
             <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{post.title}</h1>
             <div className="flex flex-row items-center justify-between my-2">
               <div className="flex flex-row justify-start items-center">
@@ -256,7 +219,11 @@ export default function Post(){
                 <p>{postDate}</p>}
               </>
             </div>
-            <img className="rounded-lg w-full" src={post.image} alt={post.title}/>
+            {
+              post.image ? 
+              <img className="rounded-lg w-full" src={post.image} alt={post.title}/>:
+              null
+            }
             <p className="my-6">{post.content}</p>
           </div>
           <div className="w-full">
@@ -271,6 +238,7 @@ export default function Post(){
         </div>       
        : null}
       </div>
-    </>
+      <Footer/>
+    </div>
   )
 }

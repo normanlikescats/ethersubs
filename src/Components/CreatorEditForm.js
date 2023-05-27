@@ -17,6 +17,7 @@ import {
 } from "react-icons/sl";
 import { FaEthereum } from "react-icons/fa";
 import { toast } from 'react-toastify';
+import Footer from './Footer'
 
 export default function CreatorForm(){
   const creator_id = useParams().id
@@ -184,7 +185,8 @@ export default function CreatorForm(){
   }
 
   return(
-    <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-8 md:mx-20 lg:mx-32 mb-20 w-10/12">
+    <div className="flex flex-col items-center">
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-8 md:mx-20 lg:mx-32 mb-20 w-10/12">
       <div className="flex flex-row justify-end"> 
         <button className="mx-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleCancel}><GiCancel className="h-6 w-6 "/></button>
       </div>
@@ -261,6 +263,8 @@ export default function CreatorForm(){
         <button onClick={handleSubmit} className="p-2 my-2 w-full self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm</button>
       </div>
     </div>
+    <Footer/>
+  </div>
   )
 }
 

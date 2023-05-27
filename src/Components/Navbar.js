@@ -4,6 +4,9 @@ import { TransactionContext } from '../Context/EthersContext'
 import { MdOutlineAccountBalanceWallet } from "react-icons/md"
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { FaArrowRight } from 'react-icons/fa'
+import { CgProfile } from 'react-icons/cg'
+import { BiLogInCircle } from 'react-icons/bi'
+import { AiOutlineHome, AiOutlineHistory, AiOutlineInfoCircle, AiOutlineCodeSandbox } from 'react-icons/ai'
 import logo from "../Images/ethersubslogo.png"
 
 
@@ -59,7 +62,7 @@ export default function Navbar() {
           <Link className="p-2 font-raleway text-lg lg:text-xl border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to="/app">
               Creators
           </Link>
-          <Link className="p-2 font-raleway text-lg lg:text-xl border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to="/history">
+          <Link className="p-2 font-raleway text-lg lg:text-xl border-transparent border-2 rounded-lg box-border transition ease-in-out duration-300 hover:border-solid hover:border-2 hover:border-white" to="/history/user">
               History
           </Link>
           {
@@ -89,32 +92,32 @@ export default function Navbar() {
         </Link>
         <div>
             <GiHamburgerMenu onClick={handleSidebar} className="h-12 w-12 hover:animate-float mr-8 mt-5"/>
-            <div className={`flex flex-col top-0 right-0 bg-panel-blue fixed h-full w-5/12 transition ease-in-out duration-300 ${sidebar ? "translate-x-0 " : "translate-x-full"}`}>
+            <div className={`flex flex-col top-0 right-0 bg-panel-blue fixed h-full w-5/12 transition ease-in-out duration-300 shadow:md ${sidebar ? "translate-x-0 " : "translate-x-full"}`}>
               <FaArrowRight className="text-white ml-6 mt-5 mb-4 h-8 w-8 hover:cursor-pointer" onClick={handleSidebarClose}/>
               {!appNavbar ?        
                 <div className="flex flex-col text-left">
-                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/about">
-                    About
+                  <Link className="flex flex-row items-center m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/about">
+                    <AiOutlineInfoCircle className="w-5 h-5 mr-2"/> About
                   </Link>
-                  <a className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" href="https://github.com/normanlikescats/ethersubs-frontend" target="blank">
-                    Protocol
+                  <a className="flex flex-row items-center m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" href="https://github.com/normanlikescats/ethersubs-frontend" target="blank">
+                    <AiOutlineCodeSandbox className="w-5 h-5 mr-2"/> Protocol
                   </a>
-                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
-                    Enter App
+                  <Link className="flex flex-row items-center m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
+                    <BiLogInCircle className="w-5 h-5 mr-2"/> Enter App
                   </Link>
                 </div> : 
                 <div className="flex flex-col text-left">
-                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
-                    Creators
+                  <Link className="flex flex-row items-center m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/app">
+                    <AiOutlineHome className="w-5 h-5 mr-2"/> Creators
                   </Link>
-                  <Link className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/history">
-                    History
+                  <Link className="flex flex-row items-center m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={handleSidebarClose} to="/history/user">
+                    <AiOutlineHistory className="w-5 h-5 mr-2"/> History
                   </Link>
                   {
                     dbUser ? 
                     <>
-                      <Link onClick={handleSidebarClose} className="m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" to={`/profile/${dbUser.id}`}>
-                          Profile
+                      <Link onClick={handleSidebarClose} className="flex flex-row items-center m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" to={`/profile/${dbUser.id}`}>
+                          <CgProfile className="w-5 h-5 mr-2"/>Profile
                       </Link> 
                       <button className="flex flex-row items-center justify-start m-1 py-3 px-5 font-raleway text-base lg:text-l hover:bg-bg-blue/60 rounded-md" onClick={()=>logout({ logoutParams: { 
                           //returnTo: "https://ethersubs.netlify.app/app"

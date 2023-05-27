@@ -7,6 +7,8 @@ import placeholder from "../Images/placeholder.png";
 import { v4 } from 'uuid';
 import axios from 'axios';
 import { GiCancel } from 'react-icons/gi'
+import { toast } from 'react-toastify';
+import Footer from './Footer'
 
 export default function PostForm(){
   const creator_id = useParams().creatorId
@@ -44,7 +46,10 @@ export default function PostForm(){
       uploadBytes(imageRef, postImage).then((response)=>{
         getDownloadURL(imageRef).then((response)=>{
           setImageUrl(response)
-          alert("uploaded")
+          toast.success("Image uploaded!",{
+            position: "top-center",
+            autoClose: 5000
+          });
         })
       })
     } catch (err){
@@ -123,6 +128,7 @@ export default function PostForm(){
           </div>
         : <p className="font-lilita text-7xl 2xl:text-9xl xl:text-8xl">Access Denied</p>
       }
+      <Footer/>
     </div>
   )
 }

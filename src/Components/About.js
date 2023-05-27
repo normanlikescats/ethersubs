@@ -1,7 +1,9 @@
 import React from "react";
+import Footer from './Footer'
 
 export default function About(){
   return(
+    <div>
       <div className="z-20 px-8 md:px-16 xl:px-28 mx-8 md:mx-20 lg:mx-32 mb-20 flex flex-col justify-start text-left py-12 rounded-2xl bg-panel-blue/40 shadow-xl">
         <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">About Us</h1>
         <h2 className="pt-6 font-lilita text-xl 2xl:text-3xl xl:text-2xl">What is EtherSubs?</h2>
@@ -43,5 +45,7 @@ export default function About(){
           A confirmation should pop-up in your wallet, prompting you to confirm the transaction. After confirming, the transaction will take some time to be processed, but we will notify you once it is completed. And that’s it!
         </p>
       </div>
+      <Footer/>
+    </div>
   )
 }
