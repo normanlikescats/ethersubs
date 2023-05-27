@@ -17,6 +17,8 @@ import {
   SlGlobe
 } from "react-icons/sl";
 import { FaEthereum } from "react-icons/fa";
+import { toast } from 'react-toastify';
+import Footer from './Footer'
 
 export default function CreatorForm(){
   const { dbUser,accessToken } = useContext(TransactionContext)
@@ -51,7 +53,10 @@ export default function CreatorForm(){
       uploadBytes(imageRef, postImage).then((response)=>{
         getDownloadURL(imageRef).then((response)=>{
           setImageUrl(response)
-          alert("uploaded")
+          toast.success("Image uploaded!",{
+            position: "top-center",
+            autoClose: 5000
+          });
         })
       })
     } catch (err){
@@ -63,7 +68,6 @@ export default function CreatorForm(){
   function handleFile(e){
     if(e.target.files[0]){
       setPostImage(e.target.files[0])
-      console.log(e.target.files[0])
     }
   }
   
@@ -72,11 +76,19 @@ export default function CreatorForm(){
     e.preventDefault();
     setPostImage('');
     setImageUrl(null);
+    toast.success("Image deleted!",{
+      position: "top-center",
+      autoClose: 5000
+    });
   }
 
   // Handle Submit
   function handleSubmit(){
     try{
+      const loadingToast = toast.loading(`Creating your page...`, {
+        position: "top-center",
+        autoClose: 5000
+      });
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/creators/create`,{
         user_id: dbUser.id,
         bio: bio,
@@ -96,7 +108,11 @@ export default function CreatorForm(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response.data)
+        toast.dismiss(loadingToast)
+        toast.success("Page created!",{
+          position: "top-center",
+          autoClose: 5000
+        })
         navigate(`/creator/${response.data.id}`)
       })
     } catch(err){
@@ -109,81 +125,85 @@ export default function CreatorForm(){
   }
 
   return(
-    <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
+    <div className="flex flex-col items-center">
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-8 md:mx-20 lg:mx-32 mb-20 w-10/12">
       <div className="flex flex-row justify-end"> 
-        <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleCancel}><GiCancel/></button>
+        <button className="mx-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleCancel}><GiCancel className="h-6 w-6"/></button>
       </div>
-      <div className="flex flex-col items-center text-left px-24 py-12">
-        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl">Create a Creator Page</h1>
-        <p>{imageUrl === null}</p>
+      <div className="flex flex-col items-center text-left px-6 md:px-12 lg:px-24 pt-6 pb-12">
+        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl mb-5">Create a Creator Page</h1>
         <img
         className="rounded-lg w-72 h-72 object-cover"
         src={imageUrl !== null ? imageUrl : placeholder}
         alt={name ?  name : dbUser.display_name}
         />
-        <div className="flex flex-row items-center justify-between w-full my-3">
+        <div className="flex flex-col md:flex-row items-center justify-between w-full md:w-9/12 lg:w-6/12 my-3">
           <input
             type="file"
             accept="image/*"
             onChange = {handleFile}
-            className="font-raleway file:m-2 file:p-2 file:font-raleway file:text-white file:font-white file:border-0 file:bg-button-purple file:rounded-lg hover:file:bg-hover-pink file:transition file:ease-in-out file:duration-500"
+            className="font-raleway self-start file:m-2 file:p-2 file:font-raleway file:text-white file:font-white file:border-0 file:bg-button-purple file:rounded-lg hover:file:bg-hover-pink file:transition file:ease-in-out file:duration-500"
            />
           {
             imageUrl === null ? 
-            <button className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500" onClick = {uploadPostImage} disabled={!postImage}>Upload image</button>:
-            <button className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500" onClick = {deleteImage}>Delete image</button>
+            <button className="mx-2 my-0 md:m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500 self-end" onClick = {uploadPostImage} disabled={!postImage}>Upload</button>:
+            <button className="mx-2 my-0 md:m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500 self-end" onClick = {deleteImage}>Delete</button>
           }
         </div>
-        <div className="flex flex-col justify-start w-full">
-          <h2>Wallet: {dbUser? `${dbUser.wallet.slice(0, 5)}... ${dbUser.wallet.slice(-4)}` : null}</h2>
-          <input type="text" value={name} placeholder="Enter a Page Name" onChange={(e)=>{setName(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-          <input type="text" value={bio} placeholder="Write something interesting about yourself..." onChange={(e)=>{setBio(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-          <div className="w-1/2 md:w-full">
-            <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Social Links</h2>
-            <div className="flex flex-row items-center">
-              <SlGlobe className="mr-2"/>
-              <input type="text" value={website} placeholder="Website" onChange={(e)=>{setWebsite(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
+        <div className="flex flex-col justify-start w-full md:w-9/12">
+          <h2>Wallet: {dbUser? `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}` : null}</h2>
+          <input type="text" value={name} placeholder="Enter a Page Name" onChange={(e)=>{setName(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 rounded-md"/>
+          <input type="text" value={bio} placeholder="Write something interesting about yourself..." onChange={(e)=>{setBio(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 rounded-md"/>
+          <div className="flex flex-row flex-wrap mb-3">
+            <div className="w-full md:w-1/2">
+              <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Social Links</h2>
+              <div className="flex flex-row items-center">
+                <SlGlobe className="mr-2"/>
+                <input type="text" value={website} placeholder="Website" onChange={(e)=>{setWebsite(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <div className="flex flex-row items-center">
+                <SiTwitter className="mr-2"/>
+                <input type="text" value={twitter} placeholder="Twitter" onChange={(e)=>{setTwitter(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <div className="flex flex-row items-center">
+                <SiDiscord className="mr-2"/>
+                <input type="text" value={discord} placeholder="Discord" onChange={(e)=>{setDiscord(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <div className="flex flex-row items-center">
+                <SiYoutube className="mr-2"/>
+                <input type="text" value={youtube} placeholder="YouTube" onChange={(e)=>{setYoutube(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <div className="flex flex-row items-center">
+                <SiSubstack className="mr-2"/>
+                <input type="text" value={substack} placeholder="Substack" onChange={(e)=>{setSubstack(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
             </div>
-            <div className="flex flex-row items-center">
-              <SiTwitter className="mr-2"/>
-              <input type="text" value={twitter} placeholder="Twitter" onChange={(e)=>{setTwitter(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
+            <div className="w-full md:w-1/2">
+              <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Payment Tiers</h2>
+              <div className="flex flex-row items-center">
+                <FaEthereum className="mr-2"/>
+                <input type="text" value={tier_1} placeholder="Tier 1" onChange={(e)=>{setTier1(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <div className="flex flex-row items-center">
+                <FaEthereum className="mr-2"/>
+                <input type="text" value={tier_2} placeholder="Tier 2" onChange={(e)=>{setTier2(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <div className="flex flex-row items-center">
+                <FaEthereum className="mr-2"/>
+                <input type="text" value={tier_3} placeholder="Tier 3" onChange={(e)=>{setTier3(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              </div>
+              <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Premium Content Tier</h2>
+              <div className="flex flex-row items-center">
+                <FaEthereum className="mr-2"/>
+                <input type="text" value={threshold} placeholder="Min. Contribution" onChange={(e)=>{setThreshold(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+              </div>
             </div>
-            <div className="flex flex-row items-center">
-              <SiDiscord className="mr-2"/>
-              <input type="text" value={discord} placeholder="Discord" onChange={(e)=>{setDiscord(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
-            <div className="flex flex-row items-center">
-              <SiYoutube className="mr-2"/>
-              <input type="text" value={youtube} placeholder="YouTube" onChange={(e)=>{setYoutube(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
-            <div className="flex flex-row items-center">
-              <SiSubstack className="mr-2"/>
-              <input type="text" value={substack} placeholder="Substack" onChange={(e)=>{setSubstack(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
+            <button onClick={handleSubmit} className="p-2 mt-6 mr-3 w-full bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Create Page</button>
           </div>
-          <div className="w-1/2 md:w-full">
-            <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Payment Tiers</h2>
-            <div className="flex flex-row items-center">
-              <FaEthereum className="mr-2"/>
-              <input type="text" value={tier_1} placeholder="Tier 1" onChange={(e)=>{setTier1(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
-            <div className="flex flex-row items-center">
-              <FaEthereum className="mr-2"/>
-              <input type="text" value={tier_2} placeholder="Tier 2" onChange={(e)=>{setTier2(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
-            <div className="flex flex-row items-center">
-              <FaEthereum className="mr-2"/>
-              <input type="text" value={tier_3} placeholder="Tier 3" onChange={(e)=>{setTier3(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
-            <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Premium Content Tier</h2>
-            <div className="flex flex-row items-center">
-              <FaEthereum className="mr-2"/>
-              <input type="text" value={threshold} placeholder="Min. Contribution" onChange={(e)=>{setThreshold(e.target.value)}} className="text-black px-2 py-1 my-1 rounded-md"/>
-            </div>
-            </div>
-          </div>
-          <button onClick={handleSubmit} className="p-2 my-2 w-1/5 self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Create Page</button>
+        </div>
       </div>
+    </div>
+      <Footer/>
     </div>
   )
 }

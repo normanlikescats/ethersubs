@@ -51,7 +51,7 @@ export default function Searchbar(props){
   }
 
   return(
-    <div className="w-10/12 lg:w-1/2">
+    <div className="w-10/12 lg:w-8/12">
       <form className="flex flex-col">
         <h2 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-1.5">Find a Creator!</h2>
         <div className="flex flex-row items-center">

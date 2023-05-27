@@ -22,6 +22,8 @@ import axios from "axios";
 import Select from "react-select";
 import PostList from "./PostList";
 import { RiDeleteBinLine } from 'react-icons/ri';
+import { toast } from 'react-toastify';
+import Footer from './Footer'
 
 export default function Creator(){
   const navigate = useNavigate();
@@ -49,8 +51,7 @@ export default function Creator(){
         }
       }).then((response)=>{
         console.log(response.data)
-        console.log(creator.threshold)
-        if(response.data[0].total_contribution >= creator.threshold){
+        if(response.data[0].status){
           setThreshold(true)
         }
       })
@@ -96,7 +97,10 @@ export default function Creator(){
 
   function handleFollow(){
     if(!dbUser){
-      alert("Please connect your wallet first!")
+      toast.error(`Please connect your wallet first!`, {
+        autoClose: 5000,
+        position: "top-center",
+      });
     } else{
       try{
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/follows/create`, {
@@ -141,7 +145,7 @@ export default function Creator(){
       amount = creator.tier_3
     }
     const creatorIdNum = +creator_id
-    sendEth(creator.user.wallet, amount, dbUser.id, creatorIdNum);
+    sendEth(creator.user.wallet, amount, dbUser.id, creatorIdNum, creator.threshold);
   }
 
   function handleCustomPayment(){
@@ -152,7 +156,7 @@ export default function Creator(){
       console.log("ETH")
       sendEth(creator.user.wallet, customAmount, dbUser.id, creatorIdNum)
     } else {
-      sendErc20(creator.user.wallet, selectedOption.value, customAmount, dbUser.id, creatorIdNum);
+      sendErc20(creator.user.wallet, selectedOption.value, customAmount, dbUser.id, creatorIdNum, creator.threshold);
     }
   }
 
@@ -177,6 +181,10 @@ export default function Creator(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then(()=>{
+        toast.success("Page deleted",{
+          autoClose: 5000,
+          position: "top-center"
+        })
         navigate(`/profile/${dbUser.id}`)
       })
     } catch(err){
@@ -185,16 +193,17 @@ export default function Creator(){
   }
 
   return(
-    <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
-       { String(dbUser.id) === String(creator.user_id) ?
+    <div>
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32">
+      { String(dbUser.id) === String(creator.user_id) ?
         <div className="flex flex-row justify-end">
-          <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit/></button>
-          <button className="h-6 w-6 mx-3 mt-3 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleDelete}><RiDeleteBinLine/></button>
+          <button className="mr-2 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit className="h-6 w-6"/></button>
+          <button className="mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleDelete}><RiDeleteBinLine className="h-6 w-6"/></button>
         </div> :
         null
       }
       <div className="flex flex-col justify-center items-center">
-        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pt-5 pb-3">{creator.name}</h1>
+        <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl mt-3 pt-5 pb-3">{creator.name}</h1>
         <img src={creator.image} alt={creator.name} className="w-72 aspect-square object-cover rounded-lg"/>
         <div className="flex flex-col text-left p-8">
           <div className="flex flex-row items-center justify-between pt-3">
@@ -214,7 +223,7 @@ export default function Creator(){
             <div className="w-full md:w-1/2 my-2 md:mr-1 p-2 bg-panel-blue/40 rounded-lg shadow-xl">
               <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl">Social Links</h3>
               <p className="font-raleway">Find me on these other platforms too!</p>
-              <div className="flex flex-row">
+              <div className="flex flex-row flex-wrap">
                 {
                   creator.website ?
                   <a href={creator.website} target="blank" className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
@@ -257,8 +266,8 @@ export default function Creator(){
               <p className="font-raleway">Contribute ⟠ {creator.threshold} or more to gain access to exclusive content!</p>
               <div className="flex flex-row items-center">
                 {ethBalance < creator.tier_1 ?
-                  <button onClick={()=>{handleETHPayment(1)}} disabled className="flex flex-row items-center p-2 m-2 rounded-lg disabled:bg-purple-300/80">
-                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_1}</p>
+                  <button onClick={()=>{handleETHPayment(1)}} disabled className="flex flex-row items-center p-2 my-2 mr-2 rounded-lg disabled:bg-purple-300/80">
+                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_1.toFixed(2)}</p>
                   </button> :
                   <button onClick={()=>{handleETHPayment(1)}} className="flex flex-row items-center p-2 my-2 mr-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
                     <FaEthereum/> <p className="font-lilita">{creator.tier_1}</p>
@@ -266,7 +275,7 @@ export default function Creator(){
                 }
                 {ethBalance < creator.tier_2 ?
                   <button onClick={()=>{handleETHPayment(2)}} disabled className="flex flex-row items-center p-2 m-2 rounded-lg disabled:bg-purple-300/80">
-                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_2}</p>
+                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_2.toFixed(2)}</p>
                   </button> :
                   <button onClick={()=>{handleETHPayment(2)}} className="flex flex-row items-center p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
                     <FaEthereum/> <p className="font-lilita">{creator.tier_2}</p>
@@ -274,7 +283,7 @@ export default function Creator(){
                 }
                 {ethBalance < creator.tier_3 ?
                   <button onClick={()=>{handleETHPayment(3)}} disabled className="flex flex-row items-center p-2 m-2 rounded-lg disabled:bg-purple-300/80">
-                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_3}</p>
+                    <FaEthereum className="text-purple-100/80"/> <p className="font-lilita text-purple-100/80">{creator.tier_3.toFixed(2)}</p>
                   </button> :
                   <button onClick={()=>{handleETHPayment(3)}} className="flex flex-row items-center p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
                     <FaEthereum/> <p className="font-lilita">{creator.tier_3}</p>
@@ -291,12 +300,16 @@ export default function Creator(){
                   {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? 
                   <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-black text-right px-5 w-1/4 rounded-lg focus:outline-none border-2 border-solid border-red-400"/>:
                   <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-black text-right px-5 w-1/4 rounded-lg focus:outline-none"/>}
-                  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? 
+                  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") || !dbUser ? 
                     <button onClick={handleCustomPayment} disabled className="font-raleway ml-5 p-2 disabled:bg-purple-300/80 rounded-lg"><p className="font-raleway text-purple-100/80">Confirm</p></button>:
                     <button onClick={handleCustomPayment} className="font-raleway ml-5 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm</button>
                   }
               </div>
-              <p className="font-raleway">Balance: {(selectedOption.value && selectedOption.value !== "ETH") ? <span>{walletBalance} {selectedOption.value}</span> : <span>{ethBalance} ETH</span>}  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? <span className="text-red-400 font-medium"> - Insufficient Balance</span> : null}</p>
+              {
+                dbUser ?
+                <p className="font-raleway">Balance: {(selectedOption.value && selectedOption.value !== "ETH") ? <span>{walletBalance} {selectedOption.value}</span> : <span>{ethBalance} ETH</span>}  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? <span className="text-red-400 font-medium"> - Insufficient Balance</span> : null}</p> :
+                null
+              }
             </div>
           </div>
           <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-2">Posts</h3>
@@ -314,6 +327,8 @@ export default function Creator(){
         </div>
       </div>
     </div>    
+    <Footer/>
+    </div>
   )
 }
 

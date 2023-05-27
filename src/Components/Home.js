@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import axios from 'axios';
 import { TransactionContext } from '../Context/EthersContext';
 import LoadingCreators from "./LoadingCreator";
+import Footer from './Footer'
 
 export default function Home(){
   const navigate = useNavigate();
@@ -48,8 +49,8 @@ export default function Home(){
       return(
         <div onClick={()=>handleClick(creator.id)} className="flex flex-col items-center w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img src={creator.image} alt={creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
-          <h3 className="font-lilita text-left w-11/12">{creator.name}</h3>
-          <p className="font-raleway text-left w-11/12">{creator.bio.slice(0,120)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(creator.id)}> Continue reading →</span></p>
+          <h3 className="font-lilita text-l 2xl:text-2xl xl:text-xl text-left w-11/12">{creator.name}</h3>
+          <p className="font-raleway text-sm text-left w-11/12">{creator.bio.slice(0,80)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(creator.id)}> Continue reading →</span></p>
         </div>
       )
     })
@@ -59,10 +60,10 @@ export default function Home(){
   if(follows){
     followItems = follows.map((follow)=>{
       return(
-        <div onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center mb-2 w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img src={follow.creator.image} alt={follow.creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
-          <h3 className="font-lilita text-left w-11/12">{follow.creator.name}</h3>
-          <p className="font-raleway text-left w-11/12">{follow.creator.bio.slice(0,120)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(follow.creator_id)}> Continue reading →</span></p>
+          <h3 className="font-lilita text-l 2xl:text-2xl xl:text-xl text-left w-11/12">{follow.creator.name}</h3>
+          <p className="font-raleway text-sm text-left w-11/12">{follow.creator.bio.slice(0,80)}...<span className="font-raleway hover:underline hover:text-hover-pink hover:cursor-pointer" onClick={()=>handleClick(follow.creator_id)}> Continue reading →</span></p>
         </div>
       )
     })
@@ -71,23 +72,26 @@ export default function Home(){
   
   
   return(
-    <div className="flex flex-col justify-center items-center w-full">
-      <Searchbar handleSubmit={handleSubmit} creators={creatorsList}/>
-      <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Your Creators</h2>
-      {
-        followItems.length === 0 ?
-        <h2 className="font-raleway pt-3">You're not following anyone yet!</h2> :
-        <div className="flex flex-row justify-center flex-wrap py-12 px-24 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32">
-          {followItems}
-        </div> 
-      }
-      <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Top Creators</h2>
-        {isLoading ?
-          <LoadingCreators/>:
-          <div className="flex flex-row justify-center flex-wrap py-12 px-24 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-8">
-            {creatorItems}
-          </div>
+    <div>
+      <div className="flex flex-col justify-center items-center w-full px-6 md:px-16 lg:px-32 xl:px-40">
+        <Searchbar handleSubmit={handleSubmit} creators={creatorsList}/>
+        <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Your Creators</h2>
+        {
+          followItems.length === 0 ?
+          <h2 className="font-raleway pt-3">You're not following anyone yet!</h2> :
+          <div className="flex flex-row justify-center flex-wrap py-12 px-6 md:px-12 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32">
+            {followItems}
+          </div> 
         }
+        <h2 className="pt-12 font-lilita text-2xl 2xl:text-4xl xl:text-3xl pb-4">Top Creators</h2>
+          {isLoading ?
+            <LoadingCreators/>:
+            <div className="flex flex-row justify-center flex-wrap py-12 px-6 md:px-12 w-11/12 rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-20">
+              {creatorItems}
+            </div>
+          }
+      </div>
+      <Footer/>
     </div>
   )
 }

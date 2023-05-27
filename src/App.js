@@ -13,7 +13,8 @@ import Post from "./Components/Post";
 import ProfileForm from "./Components/ProfileForm"
 import CreatorForm from "./Components/CreatorForm";
 import CreatorEditForm from "./Components/CreatorEditForm";
-import Footer from "./Components/Footer"
+import PostEditForm from "./Components/PostEditFrom";
+import TransactionsCreator from "./Components/TransactionsCreator";
 
 function App() {
   return (
@@ -28,13 +29,14 @@ function App() {
           <Route path="/edit/profile" element = {<ProfileForm/>} />
           <Route path="/post/create/:creatorId" element = {<PostForm/>} />
           <Route path="/posts/:postId" element = {<Post/>} />
+          <Route path="/posts/:postId/edit" element = {<PostEditForm/>} />
           <Route path="/creator/:id" element = {<Creator/>} />
           <Route path="/creator/create" element = {<CreatorForm/>} />
           <Route path="/creator/edit/:id" element = {<CreatorEditForm/>} />
-          <Route path="/history" element = {<Transactions/>} />
+          <Route path="/history/user" element = {<Transactions/>} />
+          <Route path="/history/creator" element = {<TransactionsCreator/>} />
           <Route path="/*" element = {<Error/>}/>
         </Routes>
-        <Footer/>
       </BrowserRouter>
     </div>
   );

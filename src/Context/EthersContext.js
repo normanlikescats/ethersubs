@@ -12,6 +12,7 @@ import {
   usdtDecimals
 } from "../constants.js"
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
 const ethers = require("ethers")
 
 
@@ -36,8 +37,38 @@ export const TransactionProvider = ({children}) =>{
   const [ ethBalance, setEthBalance ] = useState('')
   
   /*useEffect(()=>{
+    const IsConnected= async()=>{
+      try{
+        console.log("is connected is running")
+        if(!ethereum) return alert("Please install Metamask")
+
+        const accounts =  await ethereum.request({method: 'eth_accounts'});
+      
+        if(accounts.length && accessToken){
+          setCurrentAccount(accounts[0]);
+          axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
+            wallet: accounts[0]
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            }
+          }).then((response)=>{
+            console.log(`pull user data: ${response.data}`)
+            setDbUser(response.data)
+            toast.success(`Welcome, ${response.data.display_name ? response.data.display_name : `${response.data.wallet.slice(0,5)}...${response.data.wallet.slice(-4)}`}!`, {
+                position: "top-center",
+                autoClose: 5000
+            });
+          })
+        }      
+      } catch(error){
+        console.log(error)
+        throw new Error("No Ethereum Object")
+      }
+    };
     IsConnected();
-  },[])*/
+  },[accessToken])*/
 
   useEffect(()=>{
     if(isAuthenticated){
@@ -66,6 +97,10 @@ export const TransactionProvider = ({children}) =>{
             }).then((response)=>{
               console.log(`pull user data: ${response.data}`)
               setDbUser(response.data)
+              toast.success(`Welcome, ${response.data.display_name ? response.data.display_name : `${response.data.wallet.slice(0,5)}...${response.data.wallet.slice(-4)}`}!`, {
+                position: "top-center",
+                autoClose: 5000
+              });
             })
           }catch(err){
             console.log(err)
@@ -75,32 +110,6 @@ export const TransactionProvider = ({children}) =>{
       }) 
     }
   },[isAuthenticated, getAccessTokenSilently, user])
-  
-  /*const IsConnected = async () => {
-    try{
-      if(!ethereum) return alert("Please install Metamask")
-
-      const accounts =  await ethereum.request({method: 'eth_accounts'});
-    
-      if(accounts.length){
-        setCurrentAccount(accounts[0]);
-        axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
-          wallet: accounts[0]
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          }
-        }).then((response)=>{
-          console.log(`pull user data: ${response.data}`)
-          setDbUser(response.data)
-        })
-      }      
-    } catch(error){
-      console.log(error)
-      throw new Error("No Ethereum Object")
-    }
-  }*/
 
   const connectWallet = async () =>{
     try{
@@ -161,14 +170,14 @@ export const TransactionProvider = ({children}) =>{
       }
       const contract = new ethers.Contract(contractAddress, abi, signer);
       const balance = ((await contract.balanceOf(dbUser.wallet)/10**decimals).toString());
-      setWalletBalance(balance)
+      setWalletBalance(parseFloat(balance))
     } else {
       const balance = await provider.getBalance(dbUser.wallet)
-      setEthBalance((balance/10**18).toString().slice(0,5))
+      setEthBalance(parseFloat(balance/10**18).toString().slice(0,5))
     }
   }
 
-  const sendEth = async(recipient, amount, user_id, creator_id) =>{
+  const sendEth = async(recipient, amount, user_id, creator_id, threshold) =>{
     //const gas_price = await provider.getGasPrice();
     const formattedAddress = await ethers.utils.isAddress(recipient)
     console.log(formattedAddress)
@@ -182,19 +191,30 @@ export const TransactionProvider = ({children}) =>{
     console.log(tx)
     try{
       const transaction = await signer.sendTransaction(tx)
+      const loadingToast = toast.loading(`Transaction pending...`, {
+        position: "top-center",
+        autoClose: 5000
+      });
       const receipt = await provider.waitForTransaction(transaction.hash)
       console.log(receipt)
       // add to txn history
       await addTransaction(user_id, creator_id, amount, "ETH", transaction.hash)
       // add to threshold
-      await addThreshold(user_id, creator_id, amount, "ETH")
-      alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${transaction.hash}`)
+      await addThreshold(user_id, creator_id, amount, "ETH", threshold)
+      toast.dismiss(loadingToast)
+      toast.success("Transaction completed!",{
+        position: "top-center",
+        autoClose: 5000
+      })
     } catch(err){
-      alert(`${err.message}`)
+      toast.error(`${err.message}`, {
+        position: "top-center",
+        autoClose: 5000
+      });
     }
   }
 
-  const sendErc20 = async(recipient, token, amount, user_id, creator_id) =>{
+  const sendErc20 = async(recipient, token, amount, user_id, creator_id, threshold) =>{
     let contractAddress;
     let abi;
     let decimals;
@@ -215,16 +235,28 @@ export const TransactionProvider = ({children}) =>{
     const contract = new ethers.Contract(contractAddress, abi, signer);
     try{
       const tx = await contract.transfer(recipient, parsedAmount)
+      const loadingToast = toast.loading(`Transaction pending...`, {
+        position: "top-center",
+        toastId: "transaction-toast",
+        autoClose: 5000
+      });
       const hash = tx.hash
       console.log(hash)
       const result = await provider.waitForTransaction(hash)
       // add to txn history
       await addTransaction(user_id, creator_id, amount, token, result.transactionHash)
       // add to threshold
-      await addThreshold(user_id, creator_id, amount, token)
-      alert(`Transaction Completed! View Transaction at https://sepolia.etherscan.io/tx/${result.transactionHash}`)
+      await addThreshold(user_id, creator_id, amount, token, threshold)
+      toast.dismiss(loadingToast)
+      toast.success("Transaction completed!",{
+        position: "top-center",
+        autoClose: 5000
+      })
     } catch(err){
-      alert(`${err.message}`)
+      toast.error(`${err.message}`, {
+        position: "top-center",
+        autoClose: 5000
+      });
     }
   }
 
@@ -249,19 +281,21 @@ export const TransactionProvider = ({children}) =>{
       }
   }
 
-  const addThreshold = async (user_id, creator_id, amount, asset)=>{
+  const addThreshold = async (user_id, creator_id, amount, asset, threshold)=>{
     let currentETHPrice;
     let formattedAmount = +amount
     if(asset !== "ETH"){
-      console.log("noteth")
       axios.get(`https://api.coinbase.com/v2/prices/ETH-USD/spot`).then((response)=>{
         currentETHPrice = +response.data.data.amount
         formattedAmount = +amount
         formattedAmount = formattedAmount/currentETHPrice
+        const status = formattedAmount > threshold
+        console.log(status)
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
           user_id: user_id,
           creator_id: creator_id,
-          amount: formattedAmount
+          amount: formattedAmount,
+          status: status 
         },{
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -273,9 +307,11 @@ export const TransactionProvider = ({children}) =>{
             console.log(typeof response.data.threshold.formattedAmount)
             console.log(typeof formattedAmount/1.0)
             const newTotal = response.data.threshold.total_contribution + formattedAmount
+            const updatedStatus = newTotal > threshold
             console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
-              newTotalAmount: newTotal
+              newTotalAmount: newTotal,
+              status: updatedStatus
             },{
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -287,10 +323,12 @@ export const TransactionProvider = ({children}) =>{
         })    
       })
     } else{
+      const status = formattedAmount > threshold
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
           user_id: user_id,
           creator_id: creator_id,
-          amount: formattedAmount
+          amount: formattedAmount,
+          status: status
         },
         {
           headers: {
@@ -300,9 +338,11 @@ export const TransactionProvider = ({children}) =>{
           console.log(response)
           if(response.data.created === false){
             const newTotal = response.data.threshold.total_contribution + formattedAmount
+            const updatedStatus = newTotal > threshold
             console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
-              newTotalAmount: newTotal
+              newTotalAmount: newTotal,
+              status: updatedStatus
             },
             {
               headers: {
@@ -322,6 +362,25 @@ export const TransactionProvider = ({children}) =>{
   return(
     <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, dbUser, setDbUser, accessToken, logout, isLoading, setLoading, walletBalance, ethBalance, getWalletBalance}}>
       {children}
+      <ToastContainer
+        position="top-right"
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        toastStyle= {
+          {
+            color: '#474747',
+            textAlign: "left",
+            fontFamily: "raleway" 
+          }
+        }
+        progressStyle = {{background: '#b1b1b1'}}
+      />
     </TransactionContext.Provider>
   )
 }
