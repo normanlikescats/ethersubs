@@ -13,8 +13,8 @@ import Footer from './Footer'
 export default function PostForm(){
   const creator_id = useParams().creatorId
   const navigate = useNavigate();
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
+  const [title, setTitle] = useState(null)
+  const [content, setContent] = useState(null)
   const [creator, setCreator] = useState('')
   const [postImage, setPostImage] = useState('')
   const [imageUrl, setImageUrl] = useState(null);
@@ -66,23 +66,58 @@ export default function PostForm(){
 
   function handlePostSubmit(e){
     e.preventDefault();
+    if(inputValidation()){
+      const loadingToast = toast.loading(`Creating your post...`, {
+        position: "top-center",
+        autoClose: 5000
+      });
+      try{
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/posts/create`,{
+          creator_id: creator_id,
+          title: title,
+          content: content,
+          image: imageUrl
+        },{
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }).then((response)=>{
+          console.log(response)
+          toast.dismiss(loadingToast)
+          toast.success("Post created!",{
+            position: "top-center",
+            autoClose: 5000
+          })
+          navigate(`/posts/${response.data.id}`)
+        })
+      } catch(err){
+        console.log(err)
+        toast.dismiss(loadingToast)
+        toast.error("Post creation failed!",{
+          position: "top-center",
+          autoClose: 5000
+        })
+      }
+    } else{
+      console.log("error")
+    }
+  }
 
-    try{
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/posts/create`,{
-        creator_id: creator_id,
-        title: title,
-        content: content,
-        image: imageUrl
-      },{
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      }).then((response)=>{
-        console.log(response)
-        navigate(`/posts/${response.data.id}`)
+    
+
+  function inputValidation(){
+    if(title.trim().length === 0){
+      toast.error("Please enter a post title!",{
+        position: "top-center",
+        autoClose: 5000
       })
-    } catch(err){
-      console.log(err)
+    } else if (content.trim().length === 0){
+      toast.error("Post content cannot be empty!",{
+        position: "top-center",
+        autoClose: 5000
+      })      
+    } else {
+      return true
     }
   }
   
@@ -120,9 +155,11 @@ export default function PostForm(){
                 }
               </div>
               <label className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Post Title</label>
-              <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value)}} className="px-2 py-0.25 w-full h-8 font-raleway text-black rounded-md focus:outline-none"/>
+              <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value)}} required placeholder="Give your post a catchy title!" className="peer px-2 py-0.25 w-full h-8 font-raleway text-black rounded-md focus:outline-none"/>
+              {title !== null ? <span>{title.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Post title cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
               <label className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Post Content</label>
-              <textarea value={content} onChange={(e)=>{setContent(e.target.value)}} className="px-2 py-1.5 w-full h-96 font-raleway text-black rounded-md focus:outline-none"/>
+              <textarea value={content} onChange={(e)=>{setContent(e.target.value)}} className="px-2 py-1.5 w-full h-40 font-raleway text-black rounded-md focus:outline-none"/>
+              {content !== null ? <span>{content.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Post content cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
               <button onClick={handlePostSubmit} className="self-end my-3 py-2 px-8 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Post</button>
             </div>
           </div>

@@ -61,9 +61,9 @@ export default function Profile(){
   if(creatorData){
     creatorItems = creatorData.map((creator)=>{
       return(
-        <div onClick={()=>{handleCreatorClick(creator.id)}} className="flex flex-col justify-start w-full md:w-1/2 lg:w-1/3 my-2 px-3 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div onClick={()=>{handleCreatorClick(creator.id)}} className="flex flex-col justify-start w-full sm:w-1/2 lg:w-1/3 my-2 px-3 pt-3 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img
-            className="rounded-t-lg rounded-b-lg w-35 h-35 lg:w-50 lg:h-50 aspect-square pt-3 px-1 lg:px-3 object-cover"
+            className="rounded-t-lg rounded-b-lg w-35 h-35 lg:w-50 lg:h-50 aspect-square object-cover"
             src={creator.image}
             alt={creator.name}
           />
@@ -77,8 +77,8 @@ export default function Profile(){
 
 
   return(
-    <div>
-      <div className="rounded-2xl bg-panel-blue/40 shadow-xl pb-3 mx-4 md:mx-20 lg:mx-32 mb-20 w-10/12 md:w-8/12">
+    <div className="flex flex-col items-center">
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl pb-3 mx-4 md:mx-20 lg:mx-32 mb-12 w-10/12 md:w-8/12">
       { String(dbUser.id) === String(user_id) ?
           <div className="flex flex-row justify-end">
             <button className="mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleEdit}><BiEdit className="h-6 w-6"/></button>
@@ -96,7 +96,7 @@ export default function Profile(){
             alt={name}/>
           }
           <div className="flex flex-col justify-start w-40 md:w-52 lg:w-72 pt-4">
-            <h2>Wallet: {isLoading ? <p className="font-raleway animate-pulse">Loading...</p> : `${wallet.slice(0, 5)}...${wallet.slice(-4)}`}</h2>
+            <h2>Wallet: {isLoading ? <span className="font-raleway animate-pulse">Loading...</span> : <span>{wallet.slice(0, 5)}...{wallet.slice(-4)}</span>}</h2>
             <div className="flex flex-row content-center items-center py-1">
               {creator ?
                 <div className="flex flex-row">
@@ -105,12 +105,12 @@ export default function Profile(){
                 null
               }
             </div>
-            <p>User since {isLoading ? <p className="font-raleway animate-pulse">loading...</p> : new Date(createdDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).split(",")[1]}</p>
+            <p>User since {isLoading ? <span className="font-raleway animate-pulse">loading...</span> : <span>{new Date(createdDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).split(",")[1]}</span>}</p>
             
           </div>
         </div>
         {creator && creatorItems ?
-          <div className="bg-panel-blue/60 shadow-xl p-4 mx-8 mt-2 mb-20 rounded-2xl">
+          <div className="bg-panel-blue/60 shadow-xl p-4 mx-8 mt-2 mb-6 rounded-2xl">
             <div className="flex flex-col content-center justify-center items-center">
               <h3 className="my-3 font-lilita text-2xl 2xl:text-4xl xl:text-3xl mb-2">{String(dbUser.id) === String(user_id) ? `Your Creator Pages` : `${name}'s Creator Pages`}</h3>
               <div className="flex flex-row flex-wrap">

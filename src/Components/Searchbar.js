@@ -42,7 +42,7 @@ export default function Searchbar(props){
   if(results){
     searchResults = results.map((result)=>{
       return(
-        <div onClick={()=>handleClick(result.id)} className="p-0.5 flex flex-row items-center text-black odd:bg-slate-200 even:bg-slate-100 hover:bg-slate-400 first:rounded-t-md last:rounded-b-md">
+        <div onClick={()=>handleClick(result.id)} className="p-0.5 flex flex-row items-center text-black odd:bg-slate-200 even:bg-slate-100 hover:bg-slate-400 last:rounded-b-md">
           <img src={result.image} alt={result.name} className="w-12 mr-2 aspect-square rounded-md"/>
           <p>{result.name}</p>
         </div>
