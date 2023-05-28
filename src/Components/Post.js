@@ -4,29 +4,30 @@ import { useParams, useNavigate } from "react-router-dom"
 import { TransactionContext } from '../Context/EthersContext';
 import Comment from "./Comment";
 import { BiEdit } from 'react-icons/bi'
-import { RiDeleteBinLine } from 'react-icons/ri';
+import { RiDeleteBinLine, RiErrorWarningLine } from 'react-icons/ri';
 import Footer from './Footer'
+import { toast } from 'react-toastify';
+import Popup from 'reactjs-popup';
 
 export default function Post(){
   const post_id = useParams().postId;
   const navigate = useNavigate();
   const [post, setPost] = useState('')
   const [comments, setComments] = useState('')
-  const [newComment, setNewComment] = useState('')
+  const [newComment, setNewComment] = useState(null)
   const [threshold, setThreshold] = useState('')
   const [creator, setCreator] = useState(false)
   const { dbUser, accessToken } = useContext(TransactionContext)
+  const [commentCounter, setCommentCounter] = useState(0)
 
   // Pull Threshold data
   useEffect(()=>{
     if(!dbUser){
       navigate(`/app`)
     } else if(post){
-      console.log(post)
       if(dbUser.id === post.creator.user_id){
         setCreator(true)
       } else {
-        console.log("get threshold")
         axios.get(`${process.env.REACT_APP_BACKEND_URL}/thresholds/${dbUser.id}/${post.creator.id}`,{
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -52,7 +53,6 @@ export default function Post(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-      console.log(response.data[0])
       setPost(response.data[0])
     })
   },[accessToken, post_id])
@@ -64,37 +64,47 @@ export default function Post(){
           Authorization: `Bearer ${accessToken}`,
         }
     }).then((response)=>{
-      console.log(response.data)
       setComments(response.data)
     })
   },[accessToken, post_id])
 
   function handleNewComment(){
-    try{
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/comments/create`,{
-        user_id: dbUser.id,
-        post_id: post.id,
-        comment: newComment
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      }).then((response)=>{
-        console.log(response.data)
-        let createdComment = response.data
-        createdComment.user = {
-          display_name: dbUser.display_name,
-          photo_url: dbUser.photo_url
-        }
-        let newComments = [...comments]
-        newComments.unshift(createdComment)
-        setNewComment('')
-        setComments(newComments)
-        console.log(newComments)
-      })
-    } catch(err){
-      console.log(err)
+    if(inputValidation()){
+      try{
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/comments/create`,{
+          user_id: dbUser.id,
+          post_id: post.id,
+          comment: newComment
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }).then((response)=>{
+          let createdComment = response.data
+          createdComment.user = {
+            display_name: dbUser.display_name,
+            photo_url: dbUser.photo_url
+          }
+          let newComments = [...comments]
+          newComments.unshift(createdComment)
+          setNewComment('')
+          setCommentCounter(commentCounter + 1)
+          setComments(newComments)
+          toast.success("Comment posted!",{
+            position: "top-center",
+            autoClose: 5000
+          })
+        })
+      } catch(err){
+        console.log(err)
+        toast.error("Comment failed to post!",{
+          position: "top-center",
+          autoClose: 5000
+        })
+      }
+    } else{
+      console.log("error")
     }
   }
 
@@ -107,7 +117,10 @@ export default function Post(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response.data[1][0])
+        toast.success("Comment updated!",{
+          autoClose: 5000,
+          position: "top-center"
+        })
         let newComments = [...comments]
         const index = newComments.findIndex(object => {
           return object.id === id;
@@ -129,7 +142,10 @@ export default function Post(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response)
+        toast.success("Comment deleted!",{
+          autoClose: 5000,
+          position: "top-center"
+        })
         let newComments = [...comments]
         const index = newComments.findIndex(object => {
           return object.id === id;
@@ -150,6 +166,10 @@ export default function Post(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then(()=>{
+        toast.success("Post deleted!",{
+          autoClose: 5000,
+          position: "top-center"
+        })
         navigate(`/creator/${post.creator.id}`)
       })
     }catch (err){
@@ -163,6 +183,17 @@ export default function Post(){
 
   function handleCreatorProfileClick(){
     navigate(`/creator/${post.creator.id}`)
+  }
+
+  function inputValidation(){
+    if (newComment.trim().length === 0){
+      toast.error("Comment cannot be empty!",{
+        position: "top-center",
+        autoClose: 5000
+      })
+    } else{
+      return true
+    }
   }
 
   let commentItems;
@@ -192,20 +223,41 @@ export default function Post(){
   let editButtons = (
     <div className="flex flex-row flex-nowrap justify-end">
       <button onClick={handlePostEdit}><BiEdit className="h-6 w-6 mr-2 mt-5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
-      <button onClick={handlePostDelete}><RiDeleteBinLine className="h-6 w-6 mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300"/></button>
-    </div>
+      <Popup
+        trigger={<button><RiDeleteBinLine className="h-6 w-6 mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300"/></button>}
+        modal
+      >
+      {close => (
+        <div className="flex flex-col justify-center items-center rounded-lg bg-[#4165b3] text-white -m-3 px-3 pb-3">
+          <RiErrorWarningLine className="h-8 w-8 mb-2 mt-8"/>
+          <p>Are you sure you want to delete this post?</p>
+          <div className="flex flex-row justify-center items-center mt-2">
+          <button className="p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500" onClick={handlePostDelete}>Confirm</button>
+          <button
+            className="p-2 m-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500"
+            onClick={() => {
+              close();
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+      )}
+    </Popup>
+  </div>
   )
   
-
+  console.log(commentCounter)
   return(
     <div className="flex flex-col items-center">
-      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-4 md:mx-20 lg:mx-32 mb-20 w-10/12 md:w-8/12">
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-4 md:mx-20 lg:mx-32 mb-20 w-11/12 md:w-10/12 lg:w-8/12">
         {creator ? 
           editButtons:
           null 
         }
         {post ?
-        <div className="flex flex-col items-center text-left px-3 md:px-12 lg:px-24 pt-6 pb-12 ">
+        <div className="flex flex-col items-center text-left px-4 md:px-12 lg:px-20 pt-6 pb-12 ">
           <div className="font-raleway w-full">
             <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl pb-3">{post.title}</h1>
             <div className="flex flex-row items-center justify-between my-2">
@@ -230,10 +282,11 @@ export default function Post(){
             <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl mb-2">Drop a Comment!</h2>
             <div className="flex flex-col">
               <input type="text" value={newComment} onChange={(e)=>{setNewComment(e.target.value)}} className="text-black font-raleway rounded-md px-1 focus:outline-none w-full"/>
+              {newComment !== null && commentCounter < 0 ? <span>{newComment.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Comment cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
               <button onClick={handleNewComment} className="p-2 my-2 w-20 md:w-50 self-end bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Post</button>
             </div>
             <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl mb-2">Comments</h2>
-            {commentItems}
+            {comments.length === 0 ? <p>No comments yet!</p> : commentItems}
           </div>
         </div>       
        : null}

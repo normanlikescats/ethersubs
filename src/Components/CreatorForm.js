@@ -22,8 +22,8 @@ import Footer from './Footer'
 
 export default function CreatorForm(){
   const { dbUser,accessToken } = useContext(TransactionContext)
-  const [name, setName] = useState('')
-  const [bio, setBio] = useState('')
+  const [name, setName] = useState(null)
+  const [bio, setBio] = useState(null)
   const [twitter, setTwitter] = useState(null)
   const [substack, setSubstack] = useState(null)
   const [discord, setDiscord] = useState(null)
@@ -84,46 +84,94 @@ export default function CreatorForm(){
 
   // Handle Submit
   function handleSubmit(){
-    try{
+    if(inputValidation()){
       const loadingToast = toast.loading(`Creating your page...`, {
         position: "top-center",
         autoClose: 5000
       });
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/creators/create`,{
-        user_id: dbUser.id,
-        bio: bio,
-        name: name,
-        image: imageUrl,
-        twitter: twitter,
-        substack: substack,
-        discord: discord,
-        youtube: youtube,
-        website: website,
-        tier_1: tier_1,
-        tier_2: tier_2,
-        tier_3: tier_3,
-        threshold: threshold
-      },{
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      }).then((response)=>{
+      try{
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/creators/create`,{
+          user_id: dbUser.id,
+          bio: bio,
+          name: name,
+          image: imageUrl,
+          twitter: twitter,
+          substack: substack,
+          discord: discord,
+          youtube: youtube,
+          website: website,
+          tier_1: tier_1,
+          tier_2: tier_2,
+          tier_3: tier_3,
+          threshold: threshold
+        },{
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }).then((response)=>{
+          toast.dismiss(loadingToast)
+          toast.success("Page created!",{
+            position: "top-center",
+            autoClose: 5000
+          })
+          navigate(`/creator/${response.data.id}`)
+        })
+      } catch(err){
         toast.dismiss(loadingToast)
-        toast.success("Page created!",{
+        toast.error("Page creation failed!",{
           position: "top-center",
           autoClose: 5000
         })
-        navigate(`/creator/${response.data.id}`)
-      })
-    } catch(err){
-      console.log(err)
+        console.log(err)
+      }
+    } else{
+      console.log("error")
     }
   }
+    
 
   function handleCancel(){
     navigate(`/profile/${dbUser.id}`)
   }
 
+  function inputValidation(){
+    if(!tier_1 || !tier_2 || !tier_3 || !threshold){
+      toast.error("Please enter a value for payments!",{
+        position: "top-center",
+        autoClose: 5000
+      })
+    } else if(isNaN(parseFloat(tier_1)) || isNaN(parseFloat(tier_2))  || isNaN(parseFloat(tier_3))  || isNaN(parseFloat(threshold))){
+      toast.error("Please insert a number for payments!",{
+        position: "top-center",
+        autoClose: 5000
+      })
+    } else if(name.trim().length === 0){
+      toast.error("Please select a creator name!",{
+        position: "top-center",
+        autoClose: 5000
+      })
+    } else if (bio.trim().length === 0){
+      toast.error("Please enter a creator bio!",{
+        position: "top-center",
+        autoClose: 5000
+      })
+    } else if(imageUrl === null){
+      toast.error("Please upload an image!",{
+        position: "top-center",
+        autoClose: 5000
+      })
+    } else if((website && !website.includes(".")) || (substack && !substack.includes(".")) || (discord && !discord.includes(".")) || (twitter && !twitter.includes(".")) || (youtube && !youtube.includes("."))){
+      toast.error("Please enter valid URLs!",{
+        position: "top-center",
+        autoClose: 5000
+      })      
+    } else{
+      return true
+    }
+  }
+  console.log(name === null)
+  console.log(name === '')
+  console.log((name !== null))
   return(
     <div className="flex flex-col items-center">
       <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-8 md:mx-20 lg:mx-32 mb-20 w-10/12">
@@ -152,50 +200,80 @@ export default function CreatorForm(){
         </div>
         <div className="flex flex-col justify-start w-full md:w-9/12">
           <h2>Wallet: {dbUser? `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}` : null}</h2>
-          <input type="text" value={name} placeholder="Enter a Page Name" onChange={(e)=>{setName(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 rounded-md"/>
-          <input type="text" value={bio} placeholder="Write something interesting about yourself..." onChange={(e)=>{setBio(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 rounded-md"/>
+          <input type="text" value={name} placeholder="Enter a Creator Name" onChange={(e)=>{setName(e.target.value)}} required className="text-black px-2 py-1 my-1 mr-3 rounded-md focus:outline-none"/>
+          {name !== null ? <span>{name.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Creator name cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
+          <input type="text" value={bio} placeholder="Write something interesting about yourself..." onChange={(e)=>{setBio(e.target.value)}} required className="text-black px-2 py-1 my-1 mr-3 rounded-md focus:outline-none"/>
+          {bio !== null ? <span>{bio.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Creator bio cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
           <div className="flex flex-row flex-wrap mb-3">
             <div className="w-full md:w-1/2">
               <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Social Links</h2>
-              <div className="flex flex-row items-center">
-                <SlGlobe className="mr-2"/>
-                <input type="text" value={website} placeholder="Website" onChange={(e)=>{setWebsite(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start"> 
+                <div className="flex flex-row items-center w-full">
+                  <SlGlobe className="mr-2"/>
+                  <input type="text" value={website} placeholder="Website" onChange={(e)=>{setWebsite(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {website ? <p className="ml-6 text-red-400 font-medium bold">{website.includes(".") ? <p className="invisible">placeholder error</p> : "Invalid Website URL"}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <div className="flex flex-row items-center">
-                <SiTwitter className="mr-2"/>
-                <input type="text" value={twitter} placeholder="Twitter" onChange={(e)=>{setTwitter(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <SiTwitter className="w-4 h-4 mr-2"/>
+                  <input type="text" value={twitter} placeholder="Twitter" onChange={(e)=>{setTwitter(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {twitter ? <p className="ml-6 text-red-400 font-medium bold">{twitter.includes("twitter.com/") ? <p className="invisible">placeholder error</p> : "Invalid Twitter URL"}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <div className="flex flex-row items-center">
-                <SiDiscord className="mr-2"/>
-                <input type="text" value={discord} placeholder="Discord" onChange={(e)=>{setDiscord(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <SiDiscord className="mr-2"/>
+                  <input type="text" value={discord} placeholder="Discord" onChange={(e)=>{setDiscord(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {discord ? <p className="ml-6 text-red-400 font-medium bold">{discord.includes("discord.com/") ? <p className="invisible">placeholder error</p> : "Invalid Discord URL"}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <div className="flex flex-row items-center">
-                <SiYoutube className="mr-2"/>
-                <input type="text" value={youtube} placeholder="YouTube" onChange={(e)=>{setYoutube(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <SiYoutube className="mr-2"/>
+                  <input type="text" value={youtube} placeholder="YouTube" onChange={(e)=>{setYoutube(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {youtube ? <p className="ml-6 text-red-400 font-medium bold">{youtube.includes("youtube.com/") ? <p className="invisible">placeholder error</p> : "Invalid YouTube URL"}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <div className="flex flex-row items-center">
-                <SiSubstack className="mr-2"/>
-                <input type="text" value={substack} placeholder="Substack" onChange={(e)=>{setSubstack(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <SiSubstack className="mr-2"/>
+                  <input type="text" value={substack} placeholder="Substack" onChange={(e)=>{setSubstack(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {substack ? <p className="ml-6 text-red-400 font-medium bold">{substack.includes("substack.com/") ? <p className="invisible">placeholder error</p> : "Invalid Substack URL"}</p> : <p className="invisible">placeholder error</p>}
               </div>
             </div>
             <div className="w-full md:w-1/2">
               <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Payment Tiers</h2>
-              <div className="flex flex-row items-center">
-                <FaEthereum className="mr-2"/>
-                <input type="text" value={tier_1} placeholder="Tier 1" onChange={(e)=>{setTier1(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <FaEthereum className="mr-2"/>
+                  <input value={tier_1} placeholder="Tier 1" type="text" required onChange={(e)=>{setTier1(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {tier_1 ? <p className="ml-6 text-red-400 font-medium bold">{isNaN(parseFloat(tier_1)) || parseFloat(tier_1) === 0 ? "Invalid number" : <p className="invisible">placeholder error</p>}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <div className="flex flex-row items-center">
-                <FaEthereum className="mr-2"/>
-                <input type="text" value={tier_2} placeholder="Tier 2" onChange={(e)=>{setTier2(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <FaEthereum className="mr-2"/>
+                  <input value={tier_2} placeholder="Tier 2" type="text" required onChange={(e)=>{setTier2(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {tier_2 ? <p className="ml-6 text-red-400 font-medium bold">{isNaN(parseFloat(tier_2)) || parseFloat(tier_2) === 0 ? "Invalid number" : <p className="invisible">placeholder error</p>}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <div className="flex flex-row items-center">
-                <FaEthereum className="mr-2"/>
-                <input type="text" value={tier_3} placeholder="Tier 3" onChange={(e)=>{setTier3(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md"/>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <FaEthereum className="mr-2"/>
+                  <input value={tier_3} placeholder="Tier 3" type="text" required onChange={(e)=>{setTier3(e.target.value)}} className="text-black px-2 py-1 my-1 mr-5 w-full rounded-md focus:outline-none"/>
+                </div>
+                {tier_3 ? <p className="ml-6 text-red-400 font-medium bold">{isNaN(parseFloat(tier_3)) || parseFloat(tier_3) === 0  ? "Invalid number" : <p className="invisible">placeholder error</p>}</p> : <p className="invisible">placeholder error</p>}
               </div>
-              <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-3">Premium Content Tier</h2>
-              <div className="flex flex-row items-center">
-                <FaEthereum className="mr-2"/>
-                <input type="text" value={threshold} placeholder="Min. Contribution" onChange={(e)=>{setThreshold(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md"/>
+              <p className="invisible">placeholder error</p>
+              <h2 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl py-1">Premium Content Tier</h2>
+              <div className="flex flex-col items-start">
+                <div className="flex flex-row items-center w-full">
+                  <FaEthereum className="mr-2"/>
+                  <input type="text" value={threshold} placeholder="Min. Contribution" onChange={(e)=>{setThreshold(e.target.value)}} className="text-black px-2 py-1 my-1 mr-3 w-full rounded-md focus:outline-none"/>
+                </div>
+                {threshold ? <p className="ml-6 text-red-400 font-medium bold">{isNaN(parseFloat(threshold)) ? "Invalid number" : <p className="invisible">placeholder error</p>}</p> : <p className="invisible">placeholder error</p>}
               </div>
             </div>
             <button onClick={handleSubmit} className="p-2 mt-6 mr-3 w-full bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Create Page</button>

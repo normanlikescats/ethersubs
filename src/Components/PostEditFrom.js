@@ -104,31 +104,57 @@ export default function PostEditForm(props){
 
   function handleConfirm(e){
     e.preventDefault();
-    try{
-        const loadingToast = toast.loading(`Updating your post...`, {
-          position: "top-center",
-          autoClose: 5000
-        });
-      axios.put(`${process.env.REACT_APP_BACKEND_URL}/posts/edit/${post.id}`,{
-        title: title,
-        content: content,
-        image: imageUrl
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      }).then((response)=>{
+    if(inputValidation()){
+      const loadingToast = toast.loading(`Updating your post...`, {
+        position: "top-center",
+        autoClose: 5000
+      });
+      try{
+        axios.put(`${process.env.REACT_APP_BACKEND_URL}/posts/edit/${post.id}`,{
+          title: title,
+          content: content,
+          image: imageUrl
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }).then((response)=>{
+          toast.dismiss(loadingToast)
+          toast.success("Post updated!",{
+            position: "top-center",
+            autoClose: 5000
+          })
+          console.log(response.data[1][0])
+          navigate(`/posts/${post.id}`);
+        })
+      } catch(err){
+        console.log(err)
         toast.dismiss(loadingToast)
-        toast.success("Post updated!",{
+        toast.error("Update error!",{
           position: "top-center",
           autoClose: 5000
         })
-        console.log(response.data[1][0])
-        navigate(`/posts/${post.id}`);
+      }
+    } else {
+      console.log("error")
+    }
+  }
+    
+
+  function inputValidation(){
+    if(title.trim().length === 0){
+      toast.error("Please enter a post title!",{
+        position: "top-center",
+        autoClose: 5000
       })
-    } catch(err){
-      console.log(err)
+    } else if (content.trim().length === 0){
+      toast.error("Post content cannot be empty!",{
+        position: "top-center",
+        autoClose: 5000
+      })      
+    } else {
+      return true
     }
   }
 
@@ -167,8 +193,10 @@ export default function PostEditForm(props){
             </div>
             <label className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-1.5">Post Title</label>
             <input type="text" value={title} onChange={(e)=>{setTitle(e.target.value)}} className="px-2 py-0.25 w-full h-8 font-raleway text-black rounded-md focus:outline-none"/>
+            {title !== null ? <span>{title.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Post title cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
             <label className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-1.5">Post Content</label>
             <textarea value={content} onChange={(e)=>{setContent(e.target.value)}} className="px-2 py-1.5 w-full h-40 font-raleway text-black rounded-md focus:outline-none"/>
+            {content !== null ? <span>{content.trim().length !== 0 ? <p className="invisible">placeholder error</p> : <p className="text-red-400 font-medium bold">Post content cannot be blank</p>}</span> : <p className="invisible">placeholder error</p>}
             <button onClick={handleConfirm} className="self-end my-3 py-2 px-3 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Save Changes</button>
           </div>
         </form>

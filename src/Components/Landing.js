@@ -1,6 +1,5 @@
 import React from "react";
 import bubbles from "../Images/bubbles.gif"
-import Footer from './Footer'
 
 
 export default function Landing(){
@@ -19,7 +18,6 @@ export default function Landing(){
         <img src={bubbles} className="z-0 opacity-0 lg:opacity-30 fixed top-0 right-0 h-screen" alt=""/>
         <img src={bubbles} className="z-0 opacity-30 fixed top-0 left-1/4 lg:left-0 h-screen" alt=""/>
       </div>
-      <Footer/>
     </div>
   )
 }
