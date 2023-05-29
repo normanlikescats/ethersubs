@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { TransactionContext } from '../Context/EthersContext'
 import { MdOutlineAccountBalanceWallet } from "react-icons/md"
 import { GiHamburgerMenu } from 'react-icons/gi'
@@ -13,7 +13,20 @@ import logo from "../Images/ethersubslogo.png"
 export default function Navbar() {
   const {dbUser, connectWallet, logout} = useContext(TransactionContext)
   const [sidebar, setSidebar] = useState('')
+  const [navbarCSS, setNavbarCSS] = useState("z-50 fixed top-0 w-full")
   const pathname = useLocation().pathname.split("/")[1];
+  
+  useEffect(() => {
+    window.addEventListener('scroll', function() {
+      const currentScrollPos = window.pageYOffset;
+      if (currentScrollPos > 0) {
+        setNavbarCSS("z-50 fixed top-0 w-full bg-bg-purple/40 backdrop-blur-lg")
+      } else {
+        setNavbarCSS("z-50 fixed top-0 w-full")
+      }
+    });
+  }, [])
+
   let appNavbar;
   if(pathname === "" || pathname === "about"){
     appNavbar = false    
@@ -35,8 +48,8 @@ export default function Navbar() {
   }
 
   return (
-    <div className="z-50 absolute top-0 w-full">
-      <div className="hidden px-8 pt-3 justify-between items-center md:flex">
+    <div className={navbarCSS} id="navbar">
+      <div className="hidden px-12 lg:px-16 py-2 justify-between items-center md:flex">
         {!appNavbar ?
           <>
             <Link to="/">
@@ -87,11 +100,11 @@ export default function Navbar() {
         }  
       </div>
       <div className="flex justify-between items-stretch md:hidden">
-        <Link className="pl-8 pt-3" to="/">
-          <img src={logo} alt="EtherSubs"  className="h-16 hover:animate-float"/>
+        <Link className="pl-8" to="/">
+          <img src={logo} alt="EtherSubs"  className="h-16 my-2 hover:animate-float"/>
         </Link>
         <div>
-            <GiHamburgerMenu onClick={handleSidebar} className="h-12 w-12 hover:animate-float mr-8 mt-5"/>
+            <GiHamburgerMenu onClick={handleSidebar} className="h-12 w-12 hover:animate-float mr-8 mt-4"/>
             <div className={`flex flex-col top-0 right-0 bg-panel-blue fixed h-full w-5/12 transition ease-in-out duration-300 shadow:md ${sidebar ? "translate-x-0 " : "translate-x-full"}`}>
               <FaArrowRight className="text-white ml-6 mt-5 mb-4 h-8 w-8 hover:cursor-pointer" onClick={handleSidebarClose}/>
               {!appNavbar ?        

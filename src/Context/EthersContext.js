@@ -72,7 +72,6 @@ export const TransactionProvider = ({children}) =>{
 
   useEffect(()=>{
     if(isAuthenticated){
-      console.log("hi user!")
       let token = getAccessTokenSilently({
         audience: "http://ethersubs/api",
         scope: "openid profile email phone",
