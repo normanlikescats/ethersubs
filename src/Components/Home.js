@@ -15,7 +15,6 @@ export default function Home(){
   useEffect(()=>{
     setLoading(true)
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/all`).then((response)=>{
-      console.log(response)
       setLoading(false)
       setCreatorsList(response.data)
     })
@@ -29,7 +28,6 @@ export default function Home(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response.data)
         setFollows(response.data)
       })
     }
@@ -45,9 +43,9 @@ export default function Home(){
 
   let creatorItems;
   if(creatorsList){
-    creatorItems = creatorsList.map((creator)=>{
+    creatorItems = creatorsList.map((creator, id)=>{
       return(
-        <div onClick={()=>handleClick(creator.id)} className="flex flex-col items-center w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div key={id} onClick={()=>handleClick(creator.id)} className="flex flex-col items-center w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img src={creator.image} alt={creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
           <h3 className="font-lilita text-l 2xl:text-2xl xl:text-xl text-left w-11/12">{creator.name}</h3>
           <p className="font-raleway text-sm text-left w-11/12">{creator.bio.slice(0,80)}...<span className="font-raleway hover:underline hover:text-hover-pink" onClick={()=>handleClick(creator.id)}> Continue reading →</span></p>
@@ -58,9 +56,9 @@ export default function Home(){
 
   let followItems;
   if(follows){
-    followItems = follows.map((follow)=>{
+    followItems = follows.map((follow, id)=>{
       return(
-        <div onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center mb-2 w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div key={id} onClick={()=>handleClick(follow.creator_id)} className="flex flex-col items-center mb-2 w-full md:w-1/2 lg:w-1/3 px-3 py-5 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img src={follow.creator.image} alt={follow.creator.name} className="w-11/12 aspect-square rounded-md object-cover"/>
           <h3 className="font-lilita text-l 2xl:text-2xl xl:text-xl text-left w-11/12">{follow.creator.name}</h3>
           <p className="font-raleway text-sm text-left w-11/12">{follow.creator.bio.slice(0,80)}...<span className="font-raleway hover:underline hover:text-hover-pink hover:cursor-pointer" onClick={()=>handleClick(follow.creator_id)}> Continue reading →</span></p>
@@ -69,8 +67,6 @@ export default function Home(){
     })
   }
 
-  
-  
   return(
       <div className="flex flex-col justify-center items-center w-full ">
         <Searchbar handleSubmit={handleSubmit} creators={creatorsList}/>

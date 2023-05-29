@@ -24,7 +24,7 @@ function App() {
         <Routes>
           <Route path="/" element = {<Landing/>} />
           <Route path="/about" element = {<About/>} />
-          <Route path="/app" element = {<Home/>} />
+          <Route path="/home" element = {<Home/>} />
           <Route path="/profile/:id" element = {<Profile/>} />
           <Route path="/edit/profile" element = {<ProfileForm/>} />
           <Route path="/post/create/:creatorId" element = {<PostForm/>} />

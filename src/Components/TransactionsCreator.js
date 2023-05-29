@@ -9,7 +9,6 @@ export default function TransactionsCreator(){
   const { dbUser, accessToken, isLoading, setLoading } = useContext(TransactionContext);
   const [creatorIdArr, setCreatorIdArr] = useState('')
   const [creatorTransactions, setcreatorTransactions] = useState('')
-  console.log(dbUser)
 
   // Grab creator if any
   useEffect(()=>{
@@ -17,7 +16,6 @@ export default function TransactionsCreator(){
       setLoading(true)
       try{
         axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${dbUser.id}`).then((response)=>{
-          console.log(response.data)
           let creatorArr = [];
           for (let i = 0; i < response.data.length; i++){
             creatorArr.push(response.data[i].id)
@@ -33,13 +31,11 @@ export default function TransactionsCreator(){
   // Grab Creator Transactions if any
   useEffect(()=>{
     if(creatorIdArr){
-      console.log(creatorIdArr)
       axios.get(`${process.env.REACT_APP_BACKEND_URL}/transactions/creator/${creatorIdArr.join("-")}`,{
         headers: {
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response.data)
         setLoading(false)
         setcreatorTransactions(response.data)
       })
@@ -60,9 +56,9 @@ export default function TransactionsCreator(){
 
   let creatorTransactionItems;
   if (creatorTransactions){
-    creatorTransactionItems = creatorTransactions.map((transaction)=>{
+    creatorTransactionItems = creatorTransactions.map((transaction, id)=>{
       return(
-        <tr>
+        <tr key={id}>
           <td className="border border-3 border-white/30 py-2 px-1 hover:text-hover-pink whitespace-nowrap" onClick={()=>{handleProfile(transaction.user_id)}}>{ transaction.user.display_name ? transaction.user.display_name : transaction.user.wallet }</td>
           <td className="border border-3 border-white/30 py-2 px-1 hover:text-hover-pink whitespace-nowrap" onClick={()=>{handleCreator(transaction.creator_id)}}>{ transaction.creator.name }</td>
           <td className="border border-3 border-white/30 py-2 px-1 whitespace-nowrap">{ transaction.asset }</td>

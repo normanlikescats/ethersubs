@@ -13,7 +13,6 @@ export default function PostList(props){
         Authorization: `Bearer ${props.accessToken}`,
         }
       }).then((response)=>{
-      console.log(response.data)
       setPosts(response.data)
     })
   }, [props.creator_id, props.accessToken])
@@ -24,10 +23,10 @@ export default function PostList(props){
 
   let postItems;
   if(posts){
-    postItems = posts.map((post)=>{
+    postItems = posts.map((post, id)=>{
       let truncatedContent = post.content.slice(0,120)
       return(
-        <div onClick={()=>{handlePostClick(post.id)}} className="flex flex-row p-1 my-2 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg transition ease-in-out duration-300">
+        <div key={id} onClick={()=>{handlePostClick(post.id)}} className="flex flex-row p-1 my-2 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg transition ease-in-out duration-300">
             <img
             className="w-16 h-16 object-cover rounded-md mr-2"
             src={post.image ? post.image : placeholder}

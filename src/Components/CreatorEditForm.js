@@ -41,7 +41,7 @@ export default function CreatorForm(){
 
   useEffect(()=>{
     if(!dbUser){
-      navigate("/app")
+      navigate("/home")
     }
   })
 

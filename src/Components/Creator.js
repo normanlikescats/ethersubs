@@ -54,7 +54,6 @@ export default function Creator(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response.data)
         if(response.data[0].status){
           setThreshold(true)
         }
@@ -114,7 +113,6 @@ export default function Creator(){
         Authorization: `Bearer ${accessToken}`,
       }
     }).then((response)=>{
-      console.log(response)
       setFollows([])
       })
     } catch(err){
@@ -136,8 +134,6 @@ export default function Creator(){
   }
 
   function handleCustomPayment(){
-    console.log(selectedOption.value)
-    console.log(customAmount)
     const creatorIdNum = +creator_id
     if(selectedOption.value === "ETH"){
       console.log("ETH")
