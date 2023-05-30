@@ -125,8 +125,8 @@ export default function ProfileForm(){
 
   console.log(dbUser)
   return(
-    <div>
-      <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-32 mb-32 w-10/12 md:w-8/12 lg:w-6/12">
+    <div className="flex flex-col items-center">
+      <div className="rounded-2xl bg-panel-blue/40 shadow-xl pb-3 mx-4 md:mx-20 lg:mx-32 mb-32 w-10/12 md:w-8/12 lg:w-7/12">
         <div className="flex flex-row justify-end"> 
           <button className="mr-5 mt-5 hover:text-hover-pink transition ease-in-out duration-300" onClick={handleCancel}><GiCancel className="h-6 w-6"/></button>
         </div>

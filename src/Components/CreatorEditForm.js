@@ -333,7 +333,7 @@ export default function CreatorForm(){
                 {threshold ? <p className="ml-6 text-red-400 font-medium bold">{isNaN(parseFloat(threshold)) ? "Invalid number" : <p className="invisible">placeholder error</p>}</p> : <p className="invisible">placeholder error</p>}
               </div>
             </div>
-            <button onClick={handleSubmit} className="p-2 mt-6 mr-3 w-full bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Create Page</button>
+            <button onClick={handleSubmit} className="p-2 mt-6 mr-3 w-full bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Save</button>
           </div>
         </div>
       </div>

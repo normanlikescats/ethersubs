@@ -18,6 +18,7 @@ import {
   SlUserFollow,
   SlUserFollowing
 } from "react-icons/sl";
+import { GoLock } from 'react-icons/go'
 import { FaEthereum } from "react-icons/fa";
 import { AiOutlineDown } from "react-icons/ai"
 import axios from "axios";
@@ -332,7 +333,7 @@ export default function Creator(){
                   </div>
                   <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="text-red-400 w-1/2 font-bold font-raleway text-right pr-2 focus:outline-none"/>
                 </div> :
-                <div className="p-2 bg-white rounded-md flex flex-row border-2 border-transparent">
+                <div className="p-2 bg-white rounded-md flex flex-row justify-between border-2">
                   <div className="flex flex-row justify-start">
                     <div className="flex flex-row items-center">
                       <img className="w-7 h-7 mr-2 lg:mr-1" src={selectedOption.img} alt={selectedOption.value}/>
@@ -392,7 +393,11 @@ export default function Creator(){
               <PostList creator_id = {creator_id} accessToken={accessToken}/>
             </div>
             : 
-            <p>This section is for Premium Followers</p>}
+            <div className="flex flex-col items-center bg-bg-purple/60 py-3 px-6 rounded-md">
+              <GoLock className="w-6 h-6 my-2"/>
+              <p className="font-bold">This section is for Premium Followers</p>
+            </div>
+            }
         </div>
       </div>
     </div>    
@@ -400,4 +405,3 @@ export default function Creator(){
     </div>
   )
 }
-
