@@ -61,7 +61,7 @@ export default function Transactions(){
   }
 
   return(
-    <div className="relative items-center bg-panel-blue/40 px-3 md:px-12 lg:px-20 pt-12 pb-12 mb-12 shadow-xl rounded-2xl w-10/12">
+    <div className="absolute top-32 items-center bg-panel-blue/40 px-3 md:px-12 lg:px-20 pt-12 pb-12 mb-12 shadow-xl rounded-2xl w-10/12">
       <div className="flex flex-row justify-between content-center">
         <h1 className="font-lilita text-3xl 2xl:text-5xl xl:text-4xl text-left">Transaction History</h1>
         <button onClick={toggleUserMode} className="p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Creator View</button>
@@ -70,7 +70,7 @@ export default function Transactions(){
         {isLoading || !dbUser ?
         display:
         <div className="overflow-auto rounded-lg shadow">
-          <table className="border table-auto border-white/20 my-3">
+          <table className="w-full border table-auto border-white/20 my-3">
             <thead>
               <tr>
                 <th className="bg-black/20 border border-3 border-white/30 py-2 px-8">Sender</th>
