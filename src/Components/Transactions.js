@@ -9,7 +9,6 @@ export default function Transactions(){
   const { dbUser, accessToken, isLoading, setLoading } = useContext(TransactionContext);
   const [display, setDisplay] = useState('')
   const [userTransactions, setUserTransactions] = useState('')
-  console.log(dbUser)
   
   // Grab user transactions
   useEffect(()=>{
@@ -22,7 +21,6 @@ export default function Transactions(){
             Authorization: `Bearer ${accessToken}`,
           }
         }).then((response)=>{
-          console.log(response.data)
           setLoading(false)
           setUserTransactions(response.data)
         })
@@ -48,9 +46,9 @@ export default function Transactions(){
 
   let userTransactionItems;
   if (userTransactions){
-    userTransactionItems = userTransactions.map((transaction)=>{
+    userTransactionItems = userTransactions.map((transaction, id)=>{
       return(
-        <tr>
+        <tr key={id}>
           <td className="border border-3 border-white/30 py-2 px-1 hover:text-hover-pink" onClick={()=>{handleProfile(transaction.user_id)}}>{ dbUser.display_name ? dbUser.display_name : `${dbUser.wallet.slice(0, 5)}...${dbUser.wallet.slice(-4)}`}</td>
           <td className="border border-3 border-white/30 py-2 px-1 hover:text-hover-pink" onClick={()=>{handleCreator(transaction.creator_id)}}>{ transaction.creator.name }</td>
           <td className="border border-3 border-white/30 py-2 px-1">{ transaction.asset }</td>

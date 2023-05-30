@@ -26,7 +26,7 @@ export default function PostEditForm(props){
   // Pull Threshold data
   useEffect(()=>{
     if(!dbUser){
-      navigate(`/app`)
+      navigate("/home")
     } else if(post){
       console.log(post)
       if(dbUser.id === post.creator.user_id){

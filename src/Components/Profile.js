@@ -21,7 +21,6 @@ export default function Profile(){
   useEffect(()=>{
       setLoading(true)
       axios.get(`${process.env.REACT_APP_BACKEND_URL}/users/${user_id}`).then((response)=>{
-        console.log(response.data[0])
         setName(response.data[0].display_name)
         setPhotoUrl(response.data[0].photo_url)
         setWallet(response.data[0].wallet)
@@ -36,7 +35,6 @@ export default function Profile(){
     if(dbUser && dbUser.creator){
       try{
         axios.get(`${process.env.REACT_APP_BACKEND_URL}/creators/user/${user_id}`).then((response)=>{
-          console.log(response.data)
           setCreatorData(response.data)
         })
       } catch (err){
@@ -59,9 +57,9 @@ export default function Profile(){
 
   let creatorItems;
   if(creatorData){
-    creatorItems = creatorData.map((creator)=>{
+    creatorItems = creatorData.map((creator, id)=>{
       return(
-        <div onClick={()=>{handleCreatorClick(creator.id)}} className="flex flex-col justify-start w-full sm:w-1/2 lg:w-1/3 my-2 px-3 pt-3 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
+        <div key={id} onClick={()=>{handleCreatorClick(creator.id)}} className="flex flex-col justify-start w-full sm:w-1/2 lg:w-1/3 my-2 px-3 pt-3 border-transparent border-2 hover:border-solid hover:border-2 hover:border-white rounded-lg hover:bg-panel-blue/60">
           <img
             className="rounded-t-lg rounded-b-lg w-35 h-35 lg:w-50 lg:h-50 aspect-square object-cover"
             src={creator.image}

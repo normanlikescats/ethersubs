@@ -39,7 +39,7 @@ export default function CreatorForm(){
 
   useEffect(()=>{
     if(!dbUser){
-      navigate("/app")
+      navigate("/home")
     } else if(!dbUser.creator){
       navigate(`/profile/${dbUser.id}`)
     }

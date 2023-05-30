@@ -23,7 +23,7 @@ export default function Post(){
   // Pull Threshold data
   useEffect(()=>{
     if(!dbUser){
-      navigate(`/app`)
+      navigate("/home")
     } else if(post){
       if(dbUser.id === post.creator.user_id){
         setCreator(true)
@@ -198,11 +198,12 @@ export default function Post(){
 
   let commentItems;
   if(comments){
-    commentItems = comments.map((comment)=>{
+    commentItems = comments.map((comment, id)=>{
       let editDate = new Date(comment.updated_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).split(",")[1]
       let formattedDate = new Date(comment.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).split(",")[1]
       return(
         <Comment
+          key={id}
           id = {comment.id}
           user = {dbUser}
           commentUserId = {comment.user_id}
@@ -247,8 +248,7 @@ export default function Post(){
     </Popup>
   </div>
   )
-  
-  console.log(commentCounter)
+
   return(
     <div className="flex flex-col items-center">
       <div className="rounded-2xl bg-panel-blue/40 shadow-xl mx-4 md:mx-20 lg:mx-32 mb-20 w-11/12 md:w-10/12 lg:w-8/12">

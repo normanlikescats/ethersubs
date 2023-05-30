@@ -5,6 +5,7 @@ import usdcIcon from "../Images/usdc.png";
 import usdtIcon from "../Images/USDT.png";
 import ethIcon from "../Images/eth.png";
 import daiIcon from "../Images/dai.png";
+import { GiCancel } from 'react-icons/gi'
 import { BiEdit } from 'react-icons/bi'
 import {
   SiSubstack,
@@ -18,8 +19,8 @@ import {
   SlUserFollowing
 } from "react-icons/sl";
 import { FaEthereum } from "react-icons/fa";
+import { AiOutlineDown } from "react-icons/ai"
 import axios from "axios";
-import Select from "react-select";
 import PostList from "./PostList";
 import { RiDeleteBinLine, RiErrorWarningLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
@@ -30,7 +31,7 @@ export default function Creator(){
   const navigate = useNavigate();
   const creator_id = useParams().id;
   const [creator, setCreator] = useState('');
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState({value: "ETH", img: ethIcon});
   const [customAmount, setCustomAmount] = useState('');
   const [follows, setFollows] = useState([])
   const [threshold, setThreshold] = useState(false)
@@ -53,7 +54,6 @@ export default function Creator(){
           Authorization: `Bearer ${accessToken}`,
         }
       }).then((response)=>{
-        console.log(response.data)
         if(response.data[0].status){
           setThreshold(true)
         }
@@ -76,27 +76,10 @@ export default function Creator(){
 
   // Pull Wallet ETH Balance
   useEffect(()=>{
-    getWalletBalance("ETH")
+    if(dbUser){
+      getWalletBalance("ETH")
+    }
   })
-
-  // For React-Select Component
-  const optionsArr = [
-    { value: 'USDC', label: 'USDC', icon: usdcIcon},
-    { value: 'DAI', label: 'DAI', icon: daiIcon},
-    { value: 'USDT', label: 'USDT', icon: usdtIcon},
-    { value: 'ETH', label: 'ETH', icon: ethIcon},
-  ]
-
-  const IconOption = (props) => {
-    const {innerProps, innerRef} = props;
-      return (
-        <article  ref={innerRef} {...innerProps} className="odd:bg-slate-200 even:bg-slate-100 hover:cursor-pointer hover:bg-slate-400">
-            <img src={props.data.icon} className="w-4 h-4" alt={props.data.label}/>
-            <p className="font-raleway text-black ml-2">{props.data.label}</p>
-        </article >
-      )
-    };
-
 
   function handleFollow(){
     if(!dbUser){
@@ -130,7 +113,6 @@ export default function Creator(){
         Authorization: `Bearer ${accessToken}`,
       }
     }).then((response)=>{
-      console.log(response)
       setFollows([])
       })
     } catch(err){
@@ -152,8 +134,6 @@ export default function Creator(){
   }
 
   function handleCustomPayment(){
-    console.log(selectedOption.value)
-    console.log(customAmount)
     const creatorIdNum = +creator_id
     if(selectedOption.value === "ETH"){
       console.log("ETH")
@@ -161,12 +141,6 @@ export default function Creator(){
     } else {
       sendErc20(creator.user.wallet, selectedOption.value, customAmount, dbUser.id, creatorIdNum, creator.threshold);
     }
-  }
-
-  function handleSelect(selected){
-    console.log(selected)
-    setSelectedOption(selected)
-    getWalletBalance(selected.value)
   }
 
   function handleNewPost(){
@@ -251,10 +225,10 @@ export default function Creator(){
             <div className="w-full md:w-1/2 my-2 md:mr-1 p-2 bg-panel-blue/40 rounded-lg shadow-xl">
               <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl">Social Links</h3>
               <p className="font-raleway">Find me on these other platforms too!</p>
-              <div className="flex flex-row flex-wrap">
+              <div className="flex flex-row flex-wrap items-center">
                 {
                   creator.website ?
-                  <a href={creator.website} target="blank" className="m-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
+                  <a href={creator.website} target="blank" className="mr-2 my-2 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">
                     <SlGlobe className="h-6 w-6 lg:h-8 lg:w-8"/>
                   </a> :
                   null
@@ -289,7 +263,7 @@ export default function Creator(){
                 }
               </div>
             </div>
-            <div className="w-full md:w-1/2 my-2 md:ml-1 p-2 bg-panel-blue/40 rounded-lg shadow-xl">
+            <div className="w-full md:w-1/2 my-2 md:ml-1 py-2 pl-2 pr-4 bg-panel-blue/40 rounded-lg shadow-xl">
               <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl text-left">Support Me!</h3>
               <p className="font-raleway">Contribute ⟠ {isLoading ? "..." : creator.threshold} or more to gain access to exclusive content!</p>
               <div className="flex flex-row items-center">
@@ -318,26 +292,93 @@ export default function Creator(){
                   </button>
                 }
               </div>
-              <div className="flex flex-row">
-                <Select
-                  options={optionsArr}
-                  onChange={handleSelect}
-                  value= {selectedOption}
-                  components={{Option: IconOption}}
-                  />
-                  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? 
-                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-red-400 bold text-right px-5 w-1/4 rounded-lg focus:outline-none border-2 border-solid border-red-400"/>:
-                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="font-raleway text-black text-right px-5 w-1/4 rounded-lg focus:outline-none"/>}
+              <div className="flex flex-col py-2">
+                {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ?
+                <div className="p-2 bg-white rounded-md flex flex-row justify-between border-2 border-red-400 box-border">
+                  <div className="flex flex-row justify-start">
+                    <div className="flex flex-row items-center">
+                      <img className="w-7 h-7 mr-2 lg:mr-1" src={selectedOption.img} alt={selectedOption.value}/>
+                      <p className="text-gray-800 font-raleway font-xl">{selectedOption.value}</p>
+                    </div>
+                    <Popup
+                      trigger={<button><AiOutlineDown className="h-5 w-6 ml-3 md:ml-2 text-gray-500 hover:text-gray-800 transition ease-in-out duration-300"/></button>}
+                      modal
+                      >
+                      {close => (
+                        <div className="flex flex-col justify-center items-center rounded-lg bg-[#4165b3] text-white -my-3 -mx-5 px-5 pb-3">
+                          <div className="flex flex-row justify-between w-full py-2">
+                            <h2 className="font-lilita text-3xl pt-3">Select token</h2>
+                            <button><GiCancel className="h-6 w-6 hover:text-hover-pink transition ease-in-out duration-300" onClick={()=>{close();}}/></button>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "ETH", img: ethIcon}); setCustomAmount(''); getWalletBalance("ETH"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={ethIcon} alt="ETH"/>
+                            <p className="text-xl">ETH</p>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "USDC", img: usdcIcon}); setCustomAmount(''); getWalletBalance("USDC"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={usdcIcon} alt="USDC"/>
+                            <p className="text-xl">USDC</p>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "USDT", img: usdtIcon}); setCustomAmount(''); getWalletBalance("USDT"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={usdtIcon} alt="USDT"/>
+                            <p className="text-xl">USDT</p>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "DAI", img: daiIcon}); setCustomAmount(''); getWalletBalance("DAI"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={daiIcon} alt="DAI"/>
+                            <p className="text-xl">DAI</p>
+                          </div>
+                      </div>
+                      )}
+                    </Popup>
+                  </div>
+                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="text-red-400 w-1/2 font-bold font-raleway text-right pr-2 focus:outline-none"/>
+                </div> :
+                <div className="p-2 bg-white rounded-md flex flex-row border-2 border-transparent">
+                  <div className="flex flex-row justify-start">
+                    <div className="flex flex-row items-center">
+                      <img className="w-7 h-7 mr-2 lg:mr-1" src={selectedOption.img} alt={selectedOption.value}/>
+                      <p className="text-gray-800 font-raleway font-xl">{selectedOption.value}</p>
+                    </div>
+                    <Popup
+                      trigger={<button><AiOutlineDown className="h-5 w-6 ml-3 md:ml-2 text-gray-500 hover:text-gray-800 transition ease-in-out duration-300"/></button>}
+                      modal
+                      >
+                      {close => (
+                        <div className="flex flex-col justify-center items-center rounded-lg bg-[#4165b3] text-white -my-3 -mx-5 px-5 pb-3">
+                          <div className="flex flex-row justify-between w-full py-2">
+                            <h2 className="font-lilita text-3xl pt-3">Select token</h2>
+                            <button><GiCancel className="h-6 w-6 hover:text-hover-pink transition ease-in-out duration-300" onClick={()=>{close();}}/></button>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "ETH", img: ethIcon}); setCustomAmount(''); getWalletBalance("ETH"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={ethIcon} alt="ETH"/>
+                            <p className="text-xl">ETH</p>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "USDC", img: usdcIcon}); setCustomAmount(''); getWalletBalance("USDC"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={usdcIcon} alt="USDC"/>
+                            <p className="text-xl">USDC</p>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "USDT", img: usdtIcon}); setCustomAmount(''); getWalletBalance("USDT"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={usdtIcon} alt="USDT"/>
+                            <p className="text-xl">USDT</p>
+                          </div>
+                          <div onClick={()=>{setSelectedOption({value: "DAI", img: daiIcon}); setCustomAmount(''); getWalletBalance("DAI"); close();}} className="flex flex-row justify-start items-center w-full my-1 py-2.5 px-3 rounded-md bg-bg-blue/30 hover:bg-bg-blue">
+                            <img className="w-7 h-7 mr-3 rounded-full ring-2 ring-white" src={daiIcon} alt="DAI"/>
+                            <p className="text-xl">DAI</p>
+                          </div>
+                      </div>
+                      )}
+                    </Popup>
+                  </div>
+                  <input type="text" value={customAmount} onChange={(e)=>{setCustomAmount(e.target.value)}} className="text-gray-800 w-1/2 font-raleway text-right pr-2 focus:outline-none"/>
+                </div>
+                }
+                <p className="font-raleway">Balance: {(selectedOption.value && selectedOption.value !== "ETH") ? <span>{walletBalance ? walletBalance : "- "} {selectedOption.value}</span> : <span>{ethBalance ? ethBalance : "- "} ETH</span>}  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? <span className="text-red-400 font-bold"> - Insufficient Balance</span> : null}</p>
+                <div className="flex flex-row justify-end w-full">
                   {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") || !dbUser ? 
-                    <button onClick={handleCustomPayment} disabled className="font-raleway ml-5 p-2 disabled:bg-purple-300/80 rounded-lg"><p className="font-raleway text-purple-100/80">Confirm</p></button>:
-                    <button onClick={handleCustomPayment} className="font-raleway ml-5 p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm</button>
+                    <button onClick={handleCustomPayment} disabled className="font-raleway p-2 disabled:bg-purple-300/80 rounded-lg"><p className="font-raleway text-purple-100/80">Confirm</p></button>:
+                    <button onClick={handleCustomPayment} className="font-ralewa p-2 bg-button-purple rounded-lg hover:bg-hover-pink transition ease-in-out duration-500">Confirm</button>
                   }
+                </div>
               </div>
-              {
-                dbUser ?
-                <p className="font-raleway">Balance: {(selectedOption.value && selectedOption.value !== "ETH") ? <span>{walletBalance} {selectedOption.value}</span> : <span>{ethBalance} ETH</span>}  {(walletBalance < customAmount && selectedOption.value !== "ETH") || (ethBalance < customAmount && selectedOption.value === "ETH") ? <span className="text-red-400 font-medium"> - Insufficient Balance</span> : null}</p> :
-                null
-              }
             </div>
           </div>
           <h3 className="font-lilita text-2xl 2xl:text-4xl xl:text-3xl my-2">Posts</h3>

@@ -35,58 +35,18 @@ export const TransactionProvider = ({children}) =>{
   const [ isLoading, setLoading ] = useState(false)
   const [ walletBalance, setWalletBalance ] = useState('')
   const [ ethBalance, setEthBalance ] = useState('')
-  
-  /*useEffect(()=>{
-    const IsConnected= async()=>{
-      try{
-        console.log("is connected is running")
-        if(!ethereum) return alert("Please install Metamask")
-
-        const accounts =  await ethereum.request({method: 'eth_accounts'});
-      
-        if(accounts.length && accessToken){
-          setCurrentAccount(accounts[0]);
-          axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
-            wallet: accounts[0]
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            }
-          }).then((response)=>{
-            console.log(`pull user data: ${response.data}`)
-            setDbUser(response.data)
-            toast.success(`Welcome, ${response.data.display_name ? response.data.display_name : `${response.data.wallet.slice(0,5)}...${response.data.wallet.slice(-4)}`}!`, {
-                position: "top-center",
-                autoClose: 5000
-            });
-          })
-        }      
-      } catch(error){
-        console.log(error)
-        throw new Error("No Ethereum Object")
-      }
-    };
-    IsConnected();
-  },[accessToken])*/
 
   useEffect(()=>{
     if(isAuthenticated){
-      console.log("hi user!")
-      let token = getAccessTokenSilently({
+      getAccessTokenSilently({
         audience: "http://ethersubs/api",
         scope: "openid profile email phone",
       }).then((response)=>{
-        console.log(response)
-        console.log(token)
         setAccessToken(response)
         const getUser = async ()=>{
           const accounts = await ethereum.request({method: 'eth_requestAccounts'})
           const wallet = accounts[0]
-          console.log(accounts)
-          console.log(wallet)
           try{
-            console.log("get user")
             axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
               wallet: wallet
             },
@@ -95,7 +55,6 @@ export const TransactionProvider = ({children}) =>{
                 Authorization: `Bearer ${response}`,
               }
             }).then((response)=>{
-              console.log(`pull user data: ${response.data}`)
               setDbUser(response.data)
               toast.success(`Welcome, ${response.data.display_name ? response.data.display_name : `${response.data.wallet.slice(0,5)}...${response.data.wallet.slice(-4)}`}!`, {
                 position: "top-center",
@@ -117,38 +76,16 @@ export const TransactionProvider = ({children}) =>{
       const accounts =  await ethereum.request({method: 'eth_requestAccounts'});
       const wallet = accounts[0]
       setCurrentAccount(wallet);
-      await loginWithRedirect({
-            //redirectUri: `https://ethersubs.netlify.app/app`,
-            redirectUri: `http://localhost:3000/app`,
-        });
+      const token = await loginWithRedirect({
+        //redirectUri: "http://localhost:3000/home"
+        redirectUri: "https://ethersubs.netlify.app/home"
+      });
+      console.log(token)
     } catch(error){
       console.log(error)
       throw new Error("No Ethereum Object")
     }
   }
-
-  /*const getUser= async (response)=> {
-    console.log(user)
-    console.log(response)
-    const accounts =  await ethereum.request({method: 'eth_requestAccounts'});
-    const wallet = accounts[0]
-    try{
-      console.log("get user")
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/users`,{
-        wallet: wallet
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${response}`,
-        }
-      }).then((response)=>{
-        console.log(`pull user data: ${response.data}`)
-        setDbUser(response.data)
-      })
-    }catch(err){
-      console.log(err)
-    }
-  }*/
 
   const getWalletBalance = async(token)=>{
     if(token !== "ETH"){
@@ -178,17 +115,10 @@ export const TransactionProvider = ({children}) =>{
   }
 
   const sendEth = async(recipient, amount, user_id, creator_id, threshold) =>{
-    //const gas_price = await provider.getGasPrice();
-    const formattedAddress = await ethers.utils.isAddress(recipient)
-    console.log(formattedAddress)
     const tx = {
       to: recipient,
       value: ethers.utils.parseEther(String(amount)),
-      /*nonce: provider.getTransactionCount(currentAccount,"latest"),
-      gasLimit: ethers.utils.hexlify(0x100000),
-      gasPrice: gas_price,*/
     }
-    console.log(tx)
     try{
       const transaction = await signer.sendTransaction(tx)
       const loadingToast = toast.loading(`Transaction pending...`, {
@@ -241,7 +171,6 @@ export const TransactionProvider = ({children}) =>{
         autoClose: 5000
       });
       const hash = tx.hash
-      console.log(hash)
       const result = await provider.waitForTransaction(hash)
       // add to txn history
       await addTransaction(user_id, creator_id, amount, token, result.transactionHash)
@@ -273,8 +202,8 @@ export const TransactionProvider = ({children}) =>{
           headers: {
             Authorization: `Bearer ${accessToken}`,
           }
-        }).then((response)=>{
-          console.log(response.data)
+        }).then(()=>{
+          console.log("success")
         })
       } catch(err){
         console.log(err)
@@ -290,7 +219,6 @@ export const TransactionProvider = ({children}) =>{
         formattedAmount = +amount
         formattedAmount = formattedAmount/currentETHPrice
         const status = formattedAmount > threshold
-        console.log(status)
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/thresholds/getOrCreate`,{
           user_id: user_id,
           creator_id: creator_id,
@@ -301,14 +229,9 @@ export const TransactionProvider = ({children}) =>{
             Authorization: `Bearer ${accessToken}`,
           }
         }).then((response)=>{
-          console.log(response)
           if(response.data.created === false){
-            console.log(typeof response.data.threshold.total_contribution)
-            console.log(typeof response.data.threshold.formattedAmount)
-            console.log(typeof formattedAmount/1.0)
             const newTotal = response.data.threshold.total_contribution + formattedAmount
             const updatedStatus = newTotal > threshold
-            console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
               newTotalAmount: newTotal,
               status: updatedStatus
@@ -316,8 +239,8 @@ export const TransactionProvider = ({children}) =>{
               headers: {
                 Authorization: `Bearer ${accessToken}`,
               }
-          }).then((response)=>{
-              console.log(response)
+          }).then(()=>{
+              console.log("success")
             })
           }
         })    
@@ -335,11 +258,9 @@ export const TransactionProvider = ({children}) =>{
             Authorization: `Bearer ${accessToken}`,
           }
         }).then((response)=>{
-          console.log(response)
           if(response.data.created === false){
             const newTotal = response.data.threshold.total_contribution + formattedAmount
             const updatedStatus = newTotal > threshold
-            console.log(newTotal)
             axios.put(`${process.env.REACT_APP_BACKEND_URL}/thresholds/edit/${user_id}/${creator_id}`,{
               newTotalAmount: newTotal,
               status: updatedStatus
@@ -348,17 +269,14 @@ export const TransactionProvider = ({children}) =>{
               headers: {
                 Authorization: `Bearer ${accessToken}`,
               }
-            }).then((response)=>{
-              console.log(response)
+            }).then(()=>{
+              console.log("success")
             })
           }
         })    
       }
-    
-  }
+    }
 
-  console.log(dbUser)
-  console.log(accessToken)
   return(
     <TransactionContext.Provider value={{connectWallet, currentAccount, sendErc20, sendEth, dbUser, setDbUser, accessToken, logout, isLoading, setLoading, walletBalance, ethBalance, getWalletBalance}}>
       {children}
